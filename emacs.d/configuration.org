@@ -1603,18 +1603,18 @@ command outputs in separate buffers among other things.
        (setq eshell-prompt-regexp "└─> ")   ; or "└─> "
        (setq eshell-prompt-string "└─> ")   ; or "└─> "
        (esh-section esh-dir
-                    "🖿"  ; (folder)
+                    ""  ; (folder)
                     (abbreviate-file-name (eshell/pwd))
                     '(:foreground "dodger blue" :weight ultra-bold))
        (esh-section esh-git
-                    ""  ; (git icon)
+                    ""  ; (git icon)
                     (magit-get-current-branch)
                     '(:foreground "pink"))
        ;;(esh-section esh-python
        ;;             ""  ; (python icon)
        ;;             pyvenv-virtual-env-name)
        (esh-section esh-clock
-                    "⌚"  ; (clock icon)
+                    ""  ; (clock icon)
                     (format-time-string "%H:%M" (current-time))
                     '(:foreground "forest green"))
        ;; Below I implement a "prompt number" section
@@ -1623,7 +1623,7 @@ command outputs in separate buffers among other things.
        (advice-add 'eshell-send-input :before
                    (lambda (&rest args) (setq esh-prompt-num (incf esh-prompt-num))))
        (esh-section esh-num
-                    ""  ; (list icon)
+                    ""  ; (list icon)
                     (number-to-string esh-prompt-num)
                     '(:foreground "brown"))
        ;; Choose which eshell-funcs to enable
