@@ -43,6 +43,10 @@
     emacs-all-the-icons-fonts
     material-design-icons
     python310Packages.python-lsp-server
+    gnomeExtensions.pop-shell
+    gnome.dconf-editor  # Gnome key-based configuration system
+    gnomeExtensions.pop-launcher-super-key  # Binds pop launcher on Super key
+    (callPackage ./pkgs/pop-launcher {})
   ];
 
   # Enable Emacs daemon

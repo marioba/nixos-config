@@ -96,10 +96,6 @@
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     htop
-    gnomeExtensions.pop-shell
-    gnome.dconf-editor  # Gnome key-based configuration system
-    # gnomeExtensions.pop-launcher-super-key  # Binds pop launcher on Super key
-    gnomeExtensions.super-key
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
