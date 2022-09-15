@@ -61,6 +61,7 @@
   };
 
   # Git
+  programs.git.enable = true;
   programs.git.userName = "Mario Baranzini";
   programs.git.userEmail = "mario@opengis.ch";
 }
