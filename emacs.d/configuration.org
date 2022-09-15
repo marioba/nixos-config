@@ -1,0 +1,2295 @@
+#+TITLE: Emacs configuration
+#+AUTHOR: Mario Baranzini
+#+EMAIL: mario.baranzini@gmail.com
+#+STARTUP: overview
+
+This file contains my Emacs configuration. This file is loaded by
+.emacs.d/init.el at startup
+
+* External packages
+** Straight
+   #+begin_src emacs-lisp
+     (setq package-enable-at-startup nil)
+     (setq straight-use-package-by-default t)
+     (defvar bootstrap-version)
+     (let ((bootstrap-file
+            (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+           (bootstrap-version 5))
+       (unless (file-exists-p bootstrap-file)
+         (with-current-buffer
+             (url-retrieve-synchronously
+              "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+              'silent 'inhibit-cookies)
+           (goto-char (point-max))
+           (eval-print-last-sexp)))
+       (load bootstrap-file nil 'nomessage))
+   #+end_src
+** Use-package
+   #+begin_src emacs-lisp
+     (straight-use-package 'use-package)
+     (eval-when-compile
+       (require 'use-package))
+   #+end_src
+** Cheatsheet
+   #+begin_src emacs-lisp
+     (use-package cheatsheet
+       :init
+       (defun marioba/cheatsheet-show ()
+         "Create buffer and show cheatsheet."
+         (interactive)
+         (switch-to-buffer-other-window "*cheatsheet*")
+         (cheatsheet-mode)
+         (erase-buffer)
+         (insert (cheatsheet--format))
+         (beginning-of-buffer)
+         (setq buffer-read-only t))
+       :bind (("C-§" . marioba/cheatsheet-show)
+              :map cheatsheet-mode-map
+              ("q" . kill-buffer-and-window)))
+
+     (cheatsheet-add-group 'Common
+                           '(:key "C-x C-f" :description "find file")
+                           '(:description "Evaluate elisp buffer" :key "M-x eval-buffer")
+                           '(:description "Evaluate elisp region" :key "M-x eval-region")
+                           '(:description "Force re-evaluate defvar or defcustom" :key "C-M-x"))
+     (cheatsheet-add-group 'Help
+                           '(:description "Help for help" :key "C-h ?")
+                           '(:description "Decribe bindings" :key "C-h b")
+                           '(:description "Scroll help window (without focus)" :key "C-M-v")
+                           '(:description "Apropos (to search something if not sure of the name etc.)" :key "M-x apropos")
+                           '(:description "Apropos command" :key "C-h a")
+                           '(:description "Apropos documentation (i.e. docstrings)" :key "C-h d")
+                           '(:description "Apropos variable" :key "M-x apropos-variable")
+                           '(:description "Describe key" :key "C-h k")
+                           '(:description "Find keybinding of a command" :key "C-h w")
+                           '(:description "Describe function" :key "C-h f")
+                           '(:description "Describe package" :key "C-h P")
+                           '(:description "Describe variable" :key "C-h v")
+                           '(:description "Describe active modes" :key "C-h m")
+                           '(:description "Emacs Manual" :key "C-h i"))
+     (cheatsheet-add-group 'Motion
+                           '(:description "Back one word" :key "M-b")
+                           '(:description "Forward one word" :key "M-f")
+                           '(:description "Beginning of line" :key "C-a")
+                           '(:description "End of line" :key "C-e")
+                           '(:description "Next sentence (next code block)" :key "M-e")
+                           '(:description "Previous sentence (previous code block)" :key "M-a")
+                           '(:description "Move forward by s-expression" :key "C-M-f")
+                           '(:description "Move backward by s-expression" :key "C-M-b")
+                           '(:description "Move down into a list" :key "C-M-d")
+                           '(:description "Move up out of a list" :key "C-m-u")
+                           '(:description "Next paragraph" :key "C-down")
+                           '(:description "Previous paragraph" :key "C-up")
+                           '(:description "Next line" :key "C-n")
+                           '(:description "Previous line" :key "C-p")
+                           '(:description "Beginning of buffer" :key "M-<")
+                           '(:description "End of buffer" :key "M->")
+                           '(:description "Set the mark" :key "C-SPC")
+                           '(:description "Return to a previous position (mark ring)" :key "C-u C-SPC")
+                           '(:description "Exchange point and mark" :key "C-x C-x")
+                           '(:description "Goto visible chars" :key "C-t")
+                           '(:description "Goto a visible char" :key "M-g c")
+                           '(:description "Goto a visible word" :key "M-g w")
+                           '(:description "Goto line" :key "M-g g / M-g l")
+                           '(:description "Move cursor to center/first line/last line of current page" :key "M-r")
+                           '(:description "Scroll current line to center, top, bottom" :key "C-l")
+                           '(:description "Scroll to next screen" :key "C-v")
+                           '(:description "Scroll to previous screen" :key "M-v")
+                           '(:description "Scroll other window" :key "C-M-v")
+                           '(:description "Goto next git hunk" :key "C-x n")
+                           '(:description "Goto previous git hunk" :key "C-x p")
+                           '(:description "Save point position in register" :key "C-x r SPC")
+                           '(:description "Jump to point in register" :key "C-x r j"))
+     (cheatsheet-add-group 'Files
+                           '(:description "Find file (open or create)" :key "C-x C-f")
+                           '(:description "Find file read only mode" :key "C-x C-r")
+                           '(:description "Toggle read-only" :key "C-x C-q")
+                           '(:description "Save all files" :key "C-x s")
+                           '(:description "Insert content of another file into this buffer" :key "C-x i")
+                           '(:description "Replace this buffer with another file" :key "C-x C-v")
+                           '(:description "Save as" :key "C-x C-w"))
+     (cheatsheet-add-group 'Edit
+                           '(:description "Drag line (or region) in prog mode" :key "M-up/down")
+                           '(:description "Toggle camelCase, UPCASE, underscore etc." :key "C-c C-u")
+                           '(:description "Kills from the current point to a character" :key "M-z")
+                           '(:description "Spell chek word at point" :key "M-$")
+                           '(:description "Spell check on buffer" :key "M-x ispell-buffer")
+                           '(:description "Spell check on region" :key "M-x ispell-region")
+                           '(:description "Spell check minor mode" :key "M-x flyspell-mode")
+                           '(:description "Spell check minor mode for code" :key "M-x flyspell-prog-mode")
+                           '(:description "Insert literal character (e.g. TAB, RET)" :key "C-q")
+                           '(:description "Insert literal new line (useful in search/replace)" :key "C-q C-j")
+                           '(:description "Goto next error" :key "C-,")
+                           '(:description "Duplicate line" :key "C-c d")
+                           '(:description "Delete next char" :key "C-d")
+                           '(:description "Delete previous char" :key "C-- C-d")
+                           '(:description "Kill next word" :key "M-d")
+                           '(:description "Kill previous word" :key "M-- M-d")
+                           '(:description "Delete next 4 chars" :key "C-4 C-d")
+                           '(:description "Delete next 4 words" :key "M-4 M-d")
+                           '(:description "Insert a blank line after point" :key "C-o")
+                           '(:description "Delete all blank lines after point" :key "C-x C-o")
+                           '(:description "Delete all but 1 space around the point" :key "M-SPC")
+                           '(:description "Delete all trailing whitespace" :key "M-x delete-trailing-whitespace")
+                           '(:description "Indent a line or region" :key "TAB")
+                           '(:description "Rigidly indent" :key "C-x TAB")
+                           '(:description "Copy text in register" :key "C-x r s")
+                           '(:description "Insert text from register" :key "C-x r i")
+                           '(:description "String rectangle (insert string on each line in the region)" :key "C-x r t"))
+     (cheatsheet-add-group '"Select, copy, cut, paste"
+                           '(:description "Set/unset mark" :key "C-SPC")
+                           '(:description "Exchange point and mark" :key "C-x C-x")
+                           '(:description "Jump to a previous saved mark" :key "C-u C-SPC")
+                           '(:description "Mark next word" :key "M-@")
+                           '(:description "Mark next paragraph" :key "M-h")
+                           '(:description "Mark entire buffer" :key "C-x h")
+                           '(:description "Select rectangle" :key "C-x SPC")
+                           '(:description "Easy-kill Copy region (or link or line if no region)" :key "M-w")
+                           '(:description "Copy word (repeat w to continue, + / - or 1..9 / 0 to expand / reduce, SPC to cycle)" :key "M-w w")
+                           '(:description "Copy sexp (repeat s to continue, + / - or 1..9 / 0 to expand / reduce, SPC to cycle)" :key "M-w s")
+                           '(:description "Trasform easy-kill in region" :key "C-SPC")
+                           '(:description "Kill region" :key "C-w")
+                           '(:description "Yank last killed (paste)" :key "C-y")
+                           '(:description "Kill ring" :key "M-y")
+                           '(:description "Duplicate line or region" :key "C-c d")
+                           '(:description "Kill line" :key "C-k")
+                           '(:description "Kill word" :key "M-d")
+                           '(:description "Kill next s-expression" :key "C-M-k")
+                           '(:description "Mark next s-expression (repeat to continue)" :key "C-M-SPC")
+                           '(:description "Select previous like this region" :key "C-<")
+                           '(:description "Select all like this region" :key "C-;")
+                           '(:description "Show mark ring" :key "C-c h C-c SPC (M-x helm-all-mark-rings)")
+                           '(:description "Select and expand region" :key "C-$ (- to reduce)")
+                           '(:description "Kill to char (zzz-to-char)" :key "M-z"))
+     (cheatsheet-add-group '"Search/replace files or in buffer"
+                           '(:description "Search string in file with deadgrep (fast and smart grep)" :key "C-c g")
+                           '(:description "Low level grep" :key "M-x grep")
+                           '(:description "Hi level grep with glob pattern" :key "M-x lgrep")
+                           '(:description "Hi level grep recursive with glob pattern" :key "M-x rgrep")
+                           '(:description "Search in buffer" :key "C-s")
+                           '(:description "Search (helm locate) a file" :key "C-c l")
+                           '(:description "Back to last point before search" :key "C-r")
+                           '(:description "Replace string" :key "M-x replace-string")
+                           '(:description "Search files with grep and show results in dired buffer" :key "M-x find-grep-dired")
+                           '(:description "Search files with find and show results in dired buffer" :key "M-x find-name-dired"))
+     (cheatsheet-add-group 'Macros
+                           '(:description "Start defining macro" :key "F3")
+                           '(:description "End defining macro" :key "F4")
+                           '(:description "Executing last macro" :key "F4")
+                           '(:description "Repeat last macro until possible" :key "M-0 F4"))
+     (cheatsheet-add-group '"Buffer, window and frame management"
+                           '(:description "Shows open buffers, recently open files" :key "C-x b")
+                           '(:description "Kill buffer" :key "C-x k")
+                           '(:description "Undo changes in emacs windows" :key "C-c <left>")
+                           '(:description "Redo changes in emacs windows" :key "C-c <right>")
+                           '(:description "Move to other window" :key "S-<left>/<right>/<up>/<down>")
+                           '(:description "Switch to other window" :key "M-o / C-x o")
+                           '(:description "Delete current window" :key "C-x 0")
+                           '(:description "Delete other windows" :key "C-x 1")
+                           '(:description "Split vertically" :key "C-x 2")
+                           '(:description "Split orizontally" :key "C-x 3")
+                           '(:description "Delete active frame" :key "C-x 5 0")
+                           '(:description "Create a new frame" :key "C-x 5 2")
+                           '(:description "Switch buffer in other frame" :key "C-x 5 b")
+                           '(:description "Delete other frames" :key "C-x 5 1")
+                           '(:description "Finds a file in the other frame" :key "C-x 5 C-f")
+                           '(:description "Run project command in the other frame" :key "C-x 5 p")
+                           '(:description "Opens M-x dired in the other frame" :key "C-x 5 d")
+                           '(:description "Displays a buffer in the other frame" :key "C-x 5 C-o")
+                           '(:description "Finds a file in the other window" :key "C-x 4 C-f")
+                           '(:description "Opens M-x dired in the other window" :key "C-x 4 d")
+                           '(:description "Displays a buffer in the other window" :key "C-x 4 C-o")
+                           '(:description "Switches the buffer in the other window" :key "C-x 4 b")
+                           '(:description "Kills the buffer and window" :key "C-x 4 0")
+                           '(:description "Run project command in the other window" :key "C-x 4 p"))
+     (cheatsheet-add-group 'Ibuffer
+                           '(:description "Visit file keeping buffer list open" :key "C-o")
+                           '(:description "Open ibuffer" :key "C-x C-b")
+                           '(:description "Mark the buffer at point" :key "m")
+                           '(:description "Toggle marked buffers" :key "t")
+                           '(:description "Unmark buffer at point" :key "u")
+                           '(:description "Unmark the previous buffer" :key "DEL")
+                           '(:description "Mark buffers by major mode" :key "* M")
+                           '(:description "Kill line (without killing the buffer)" :key "k")
+                           '(:description "Kill the marked buffers" :key "D")
+                           '(:description "Filter buffers" :key "/")
+                           '(:description "Remove filtering" :key "//")
+                           '(:description "Rotate between sorting mode" :key ",")
+                           '(:description "Move to next filter group" :key "TAB")
+                           '(:description "Group by git repository" :key "M-x ibuffer-vc-set-filter-group-by-vc-root")
+                           '(:description "Switch to default group strategy (defined in configuration.org)" :key "/ R"))
+     (cheatsheet-add-group '"Python debug"
+                           '(:description "Launch debugger on current buffer" :key "M-x realgud:trepan3k")
+                           '(:description "Next (step over)" :key "n")
+                           '(:description "Step (step into)" :key "s")
+                           '(:description "Finish (step out)" :key "f")
+                           '(:description "Continue (run to next breakpoint)" :key "c")
+                           '(:description "Set breakpoint" :key "b")
+                           '(:description "Clear breakpoint" :key "D")
+                           '(:description "Quit" :key "q")
+                           '(:description "Restart" :key "r")
+                           '(:description "Goto command window" :key "S")
+                           '(:description "Evaluate expression" :key "e")
+                           '(:description "Inspect variable" :key "mouse over"))
+     (cheatsheet-add-group '"Shell commands"
+                           '(:description "Call shell command and print output" :key "M-!")
+                           '(:description "Call shell command and insert output into buffer" :key "C-u M-!")
+                           '(:description "Like M-! but asynchronous" :key "M-&")
+                           '(:description "Like C-u M-! but asynchronous" :key "C-u M-&")
+                           '(:description "Send region as input of shell command" :key "M-\vert")
+                           '(:description "Like M-\vert but replaces region" :key "C-u M-\vert")
+                           '(:description "Run a (long-running) command and track errors" :key "M-x compile")
+                           '(:description "Re-run last command" :key "g / M-x recompile")
+                           '(:description "Jump to next / previous error" :key "M-g M-n / M-g M-p")
+                           '(:description "Compile in the current project" :key "M-x projectile-compile-project"))
+     (cheatsheet-add-group '"Tramp"
+                           '(:description "Open remote file via ssh" :key "/ssh:marioba@server.com:/etc/file.txt")
+                           '(:description "Open file as root" :key "/sudo::/etc/hosts")
+                           '(:description "Open file on a docker container" :key "/docker:user@container:/filename"))
+     (cheatsheet-add-group '"Bookmarks"
+                           '(:description "Set bookmark" :key "C-x r m")
+                           '(:description "Jump to a bookmark" :key "C-x r b")
+                           '(:description "List bookmarks" :key "C-x r l"))
+     (cheatsheet-add-group '"Log files"
+                           '(:description "Highlight a phrase" :key "M-s h p")
+                           '(:description "Highlight a regular expression" :key "M-s h r")
+                           '(:description "Highlight symbol at the point" :key "M-s h .")
+                           '(:description "Remove highlighting under the point" :key "M-s h u")
+                           '(:description "Append changes to the end of the buffer (like tail -f)" :key "M-x auto-revert-tail-mode"))
+     (cheatsheet-add-group '"Eww"
+                           '(:description "Open Eww" :key "M-x eww")
+                           '(:description "Next link" :key "TAB")
+                           '(:description "Previous link" :key "S-TAB")
+                           '(:description "Exit" :key "q")
+                           '(:description "Change url or new search" :key "G")
+                           '(:description "Open page external browser" :key "&")
+                           '(:description "Show bookmarks" :key "B")
+                           '(:description "Add bookmark" :key "b")
+                           '(:description "Show browser history" :key "H")
+                           '(:description "Browse backward/forward in history" :key "l/r")
+                           '(:description "Reader mode" :key "R")
+                           '(:description "Open link" :key "RET")
+                           '(:description "Open link in external browser" :key "C-u RET")
+                           '(:description "Open link in new buffer" :key "M-RET")
+                           '(:description "Switch to another eww buffer" :key "s")
+                           '(:description "Search for point in eww" :key "M-s M-w"))
+   #+end_src
+** Delight
+   Enables you to customise the mode names displayed in the mode line.
+   #+begin_src emacs-lisp
+     (use-package delight)
+   #+end_src
+** Theme
+   Use spacemacs-theme dark
+   #+begin_src emacs-lisp
+     (use-package spacemacs-theme
+       :defer t
+       :init
+       (setq custom-safe-themes t)
+       (load-theme 'spacemacs-dark t))
+   #+end_src
+** Which key
+    Displays available key bindings in popup
+    #+BEGIN_SRC emacs-lisp
+      (use-package which-key
+        :config
+        (which-key-mode)
+        :delight
+        :demand t
+        :bind ("C-c w" . which-key-show-top-level))
+
+      (cheatsheet-add-group 'Which-key
+                            '(:description "Show top level" :key "C-c w"))
+
+    #+END_SRC
+** Avy
+   Avy, package for jumping to visible text using a char-based decision tree
+   #+BEGIN_SRC emacs-lisp
+     (use-package avy
+       :bind (("C-t" . avy-goto-char-timer)
+              ("M-g c" . avy-goto-char)
+              ("M-g l" . avy-goto-line)
+              ("M-g w" . avy-goto-word-1))
+       :delight)
+   #+END_SRC
+** Projectile
+   Projectile makes navigating in and between projects much easier.
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package projectile
+       :custom
+       (projectile-switch-project-action #'projectile-dired)
+       :config
+       (projectile-global-mode)
+       ;; enable cache
+       (setq projectile-enable-cache t)
+       :bind-keymap
+       ("C-c p" . projectile-command-map)
+       :delight)
+
+     (cheatsheet-add-group 'Projectile
+                           '(:description "Find file in project" :key "C-c p f")
+                           '(:description "Find file in project open in new frame" :key "C-c p 5 f")
+                           '(:description "Find directory in project" :key "C-c p d")
+                           '(:description "Switch project" :key "C-c p p")
+                           '(:description "Find file in all known projects" :key "C-c p F")
+                           '(:description "Find open project buffer" :key "C-c p b")
+                           '(:description "List recently opened files in project" :key "C-c p e")
+                           '(:description "Grep in current project" :key "C-c p s g")
+                           '(:description "Replace in current project" :key "C-c p r")
+                           '(:description "Invoke Projectile commander" :key "C-c p m")
+                           '(:description "Invalidate project cache" :key "C-c p m")
+                           '(:description "Kill all project buffer" :key "C-c p k")
+                           '(:description "Open the root of the project in Dired" :key "C-c p D")
+                           '(:description "Find recently visited project file" :key "C-c p e")
+                           '(:description "Switch to the previous project buffer" :key "C-c left")
+                           '(:description "Switch to the next project buffer" :key "C-c right")
+                           '(:description "Invoke Projectile commander" :key "C-c p m")
+                           '(:description "Switch to the most recently selected Projectile buffer" :key "C-c p ESC")
+                           '(:description "Start or visit eshell for the project" :key "C-c p x e")
+                           '(:description "Display Projectile keybindings" :key "C-c p C-h")
+                           '(:description "Run shell command in root of project" :key "C-c &")
+                           )
+
+   #+END_SRC
+** Super-save
+   Disable default auto-save-mode, enable super save that saves buffers when
+   they lose focus
+   #+begin_src emacs-lisp
+     (use-package super-save
+       :config
+       (setq auto-save-default nil)
+       (setq super-save-auto-save-when-idle t)
+       (super-save-mode +1)
+       :delight)
+   #+end_src
+** Magit
+   #+begin_src emacs-lisp
+     (use-package magit
+       :bind ("C-x g" . magit-status)
+       :config
+       (setq magit-repository-directories `(("~/projects" . 3)))
+       ;; Open magit status in full window
+       (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1))
+
+     (cheatsheet-add-group 'Magit
+                           '(:description "Magit status" :key "C-x g")
+                           '(:description "Show commands" :key "?")
+                           '(:description "Move to next/previous section" :key "n / p")
+                           '(:description "Move to next/previous sibling section" :key "M-n / M-p")
+                           '(:description "Cycle the visibility of current section and children" :key "C-TAB")
+                           '(:description "Show section level 1 / 2 / 3 / 4" :key "1 / 2 / 3 / 4")
+                           '(:description "Show all sections to level 1 / 2 / 3 / 4" :key "M-1 / M-2 / ...")
+                           '(:description "Show log for current branch" :key "l l")
+                           '(:description "Customize current log buffer (included status buffer)" :key "L")
+                           '(:description "Show diff of a commit without focus (otherwise menu d)" :key "SPC")
+                           '(:description "Visit the file" :key "RET")
+                           '(:description "Show blame on current file" :key "M-x magit-blame")
+                           '(:description "Show blame menu after M-x magit-blame" :key "B")
+                           '(:description "Cancel commits until commit at point" :key "X s")
+                           '(:description "Reuse previous commit comment" :key "M p/n")
+                           '(:description "List repositories (defined in init file)" :key "M-x magit-list-repositories")
+                           '(:description "Show branches and tags" :key "y")
+                           '(:description "Stop calculating diff (e.g. when creating a commit with big file)" :key "C-g")
+                           '(:description "Increase or reduce hunk in diff view" :key "+ / -")
+                           '(:description "Jump to different sections in magit buffer" :key "j ...")
+                           '(:description "Jump to file at point in magit buffer with Dired" :key "C-M-i")
+                           '(:description "See history of definition at point from diff buffer" :key "C-c C-t")
+                           '(:description "Edit definition at point from diff buffer" :key "C-c C-e")
+                           '(:description "Show differences between HEAD, index and working tree with Ediff" :key "E ...")
+                           '(:description "Call Magit dispatch from a file (e.g. to stage file, show diff, ...)" :key "C-c M-g")
+                           '(:description "Ignore file" :key "i")
+                           '(:description "Untrack file" :key "K")
+                           '(:description "Rename file" :key "R")
+                           '(:description "Reset branch to what it was and put my commits on a new branch" :key "b s")
+                           '(:description "Show process buffer" :key "$")
+                           '(:description "Kill process in process buffer" :key "k")
+                           '(:description "Show different commits between two branches" :key "Y")
+                           '(:description "Open Forge (i.e. github) dispatch" :key "'"))
+   #+end_src
+** Magit-todos
+   Shows TODO:, FIXME: etc. tags of a project in magit
+    #+BEGIN_SRC emacs-lisp
+      (use-package magit-todos
+        :config
+        (magit-todos-mode 1)
+        ;; Don't scan lines longer than 120 otherwise can be a problem with
+        ;; generated files with very long lines e.g. qwc2.js
+        (setq magit-todos-rg-extra-args '("-M 120")))
+    #+END_SRC
+** Magit-forge
+   https://github.com/magit/forge
+   Work with Git forges, such as Github and Gitlab, from the comfort
+   of Magit and the rest of Emacs.
+
+   Load Forge automatically when Magit is opened
+   #+begin_src emacs-lisp
+     (use-package forge
+       :after (magit)
+       :config
+       ;; Show assigned issues and PRs directly in the status buffer:
+       (with-eval-after-load 'magit
+         (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-assigned-issues   nil t)
+         (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-assigned-pullreqs   nil t)))
+   #+end_src
+** Diff-hl
+   highlights uncommitted changes on the left side of the window (area
+   also known as the "gutter"), allows you to jump between and revert
+   them selectively.
+   #+begin_src emacs-lisp
+     (use-package diff-hl
+       :init
+       (global-diff-hl-mode)
+       (diff-hl-margin-mode)
+       :hook ((magit-pre-refresh . diff-hl-magit-pre-refresh)
+              (magit-post-refresh . diff-hl-magit-post-refresh)))
+   #+end_src
+** Flycheck
+   Error code to ignore are defined in =~/.config/flake8= and =~/.pydocstyle=
+   Mypy is configured in =~/.config/mypy/config=
+   See https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes and
+   https://flake8.pycqa.org/en/latest/user/error-codes.html and
+   http://www.pydocstyle.org/en/stable/error_codes.html
+   #+begin_src emacs-lisp
+     (use-package flycheck
+       :custom
+       (flycheck-flake8rc "~/.config/flake8")
+       (flycheck-python-mypy-config "~/.config/mypy/config")
+       :hook (python-mode . flycheck-mode)
+       )
+   #+end_src
+** LSP-mode OLD
+   Language Server Protocol
+   #-+begin_src emacs-lisp
+     (use-package lsp-mode
+       :custom
+       (lsp-idle-delay 0.5)
+       (lsp-enable-symbol-highlighting t)
+       (lsp-enable-snippet nil)  ;; Not supported by company capf, which is the recommended company backend
+       (lsp-headerline-breadcrumb-enable t)
+       (lsp-headerline-breadcrumb-enable-diagnostics nil)
+       (lsp-prefer-capf t) ;; use company capf instead of company lsp as capf caches results automatically. This setting makes lsp-mode prefer capf if both are available.
+       (lsp-pyls-plugins-flake8-enabled t)
+       (lsp-pyls-configuration-sources ["flake8"])
+       (lsp-diagnostic-package :none)
+       :hook
+       ((python-mode . lsp)
+        (lsp-mode . lsp-enable-which-key-integration)
+        (python-mode . (lambda () (setq python-python-command "/usr/bin/python")))
+        )
+       :bind-keymap
+       ("C-c s" . lsp-command-map)
+       :delight
+       )
+
+     ;; See https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
+     (use-package lsp-ui
+       :custom
+       (lsp-ui-sideline-enable t)
+       (lsp-ui-sideline-show-hover t)
+       (lsp-ui-sideline-delay 0.5)
+       (lsp-ui-sideline-ignore-duplicates t)
+       (lsp-ui-doc-enable t)
+       (lsp-ui-doc-show-with-cursor nil)  ; Show doc on mouse over only
+       (lsp-ui-doc-include-signature nil)
+       (lsp-ui-doc-use-childframe t)
+       (lsp-signature-auto-activate nil)
+       (lsp-signature-render-documentation nil)
+       (lsp-completion-show-detail nil)
+       (lsp-completion-show-kind nil)
+       (lsp-eldoc-enable-hover nil)
+       (lsp-modeline-diagnostics-enable nil)
+       :bind
+       ("M-i" . lsp-ui-imenu)
+       :delight)
+
+     (cheatsheet-add-group 'Programming
+                           '(:description "lsp prefix" :key "C-c s")
+                           '(:description "Comment region or add comment at the end of line" :key "M-;")
+                           '(:description "Delete all spaces except one" :key "M-SPC")
+                           '(:description "Completion at point" :key "M-TAB")
+                           '(:description "Goto definition" :key "M-. (C-x 4 . for other window)")
+                           '(:description "Goto definition (dumb-jump)" :key "M-g j")
+                           '(:description "Return where goto was called" :key "M-,")
+                           '(:description "Toggle lsp ui doc mode" :key "C-c s T d")
+                           '(:description "Complete snippet (yasnippet)" :key "TAB")
+                           '(:description "Insert snippet" :key "C-c & C-s")
+                           '(:description "Create new snippet" :key "C-c & C-n")
+                           '(:description "Run syntax check and display result" :key "C-c C-v")
+                           '(:description "Goto next error" :key "C-c ! n")
+                           '(:description "Goto previous error" :key "C-c ! p")
+                           '(:description "Format PEP8" :key "M-x py-autopep8")
+                           '(:description "List functions and methods (helm imenu)" :key "M-i / C-x c i (I for all buffers)")
+                           '(:description "Flycheck (activate python-flake8 for python)" :key "C-c !")
+                           '(:description "Indent region manually" :key "C-x TAB")
+                           '(:description "Indent region automatically" :key "C-u C-x TAB"))
+   #+end_src
+** Markdown mode
+Required by lsp-bridge
+  #+begin_src emacs-lisp
+  (use-package markdown-mode
+    :ensure t
+    :mode ("README\\.md\\'" . gfm-mode)
+    :init (setq markdown-command "multimarkdown"))
+  #+end_src
+** Posframe
+Required by lsp-bridge
+   #+begin_src emacs-lisp
+     (use-package posframe
+       )
+   #+end_src
+** LSP-bridge
+#+begin_src emacs-lisp
+  (use-package lsp-bridge
+      :straight (lsp-bridge :type git
+                            :host github
+                            :repo "manateelazycat/lsp-bridge"
+                            :branch "master"
+                            )
+    :ensure nil
+    :defer 2
+    :delight
+    :bind (:map lsp-bridge-mode
+                ("M-." . lsp-bridge-find-def)
+                ("M-," . lsp-bridge-return-from-def)
+                ("C-c l r" . lsp-bridge-rename)
+                ("C-c l f" . lsp-bridge-find-references)
+                ("C-c l d" . lsp-bridge-lookup-documentation)
+                )
+    :load-path "~/.emacs.d/straight/repos/lsp-bridge"
+    :config
+    (setq lsp-bridge-default-mode-hooks
+          (remove 'org-mode-hook lsp-bridge-default-mode-hooks))
+    ;;(add-to-list 'lsp-bridge-lang-server-mode-list '(python-mode . "pyright"))
+
+    (setq lsp-bridge-enable-diagnostics nil)
+    )
+
+  (global-lsp-bridge-mode)
+  (cheatsheet-add-group 'Programming
+                        '(:description "lsp prefix" :key "C-c l")
+                        '(:description "Comment region or add comment at the end of line" :key "M-;")
+                        '(:description "Delete all spaces except one" :key "M-SPC")
+                        '(:description "Completion at point" :key "M-TAB")
+                        '(:description "Goto definition" :key "M-.")
+                        '(:description "Return where goto was called" :key "M-,")
+                        '(:description "Complete snippet (yasnippet)" :key "TAB")
+                        '(:description "Insert snippet" :key "C-c & C-s")
+                        '(:description "Create new snippet" :key "C-c & C-n")
+                        '(:description "Run syntax check and display result" :key "C-c C-v")
+                        '(:description "Goto next error" :key "C-c ! n")
+                        '(:description "Goto previous error" :key "C-c ! p")
+                        '(:description "List functions and methods (consult imenu)" :key "M-g i (I for all buffers)")
+                        '(:description "Indent region manually" :key "C-x TAB")
+                        '(:description "Indent region automatically" :key "C-u C-x TAB")
+                        '(:description "Lookup documentation of symbol under the cursor" :key "C-c l d")
+                        '(:description "Rename symbol under the cursor" :key "C-c l r")
+                        '(:description "Find references" :key "C-c l f")
+                        '(:description "list errors" :key "C-c ! l")
+                        '(:description "next error" :key "C-c ! n")
+                        '(:description "previous error" :key "C-c ! p")
+                        '(:description "display error at point" :key "C-c ! h")
+                        '(:description "explain error at point" :key "C-c ! e")
+                        )
+#+end_src
+** Pipenv
+   To activate a pipenv use =M-x pipenv-activate= and then restart the
+   lsp workspace with =M-x lsp-workspace-restart=
+   #+begin_src emacs-lisp
+     (use-package pipenv
+       :hook (python-mode . pipenv-mode)
+       :delight
+       )
+   #+end_src
+** Company
+   Company completes anything
+   #+begin_src emacs-lisp
+     (use-package company
+       :hook ((prog-mode docker-compose-mode) . company-mode)
+       :custom
+       (company-idle-delay 0)
+       (company-minimum-prefix-length 1)
+       (company-tooltip-align-annotations t)
+       (company-tooltip-limit 10)
+       (company-idle-delay 0)
+       (company-echo-delay (if (display-graphic-p) nil 0))
+       (company-minimum-prefix-length 2)
+       (company-require-match 'never)
+       (company-show-numbers t)
+       (company-global-modes '(not erc-mode message-mode help-mode gud-mode eshell-mode shell-mode))
+       (company-backends '(company-capf))
+       :delight
+       :bind
+       (:map lsp-mode-map
+        ("M-<tab>" . company-indent-or-complete-common))
+       :after (lsp-mode)
+       )
+
+
+     (use-package company-box
+       :hook (company-mode . company-box-mode)
+       :delight)
+
+     (use-package company-posframe
+       :config
+       (company-posframe-mode)
+       :custom
+       (company-posframe-quickhelp-delay nil)
+       :delight)
+   #+end_src
+** Beacon
+   Whenever the window scrolls a light will shine on top of your cursor so you know where it is.
+   #+begin_src emacs-lisp
+     (use-package beacon
+       :config
+       (beacon-mode 1)
+       :delight)
+   #+end_src
+** Rainbow delimiters
+   Highlights delimiters such as parentheses, brackets or braces according to
+   their depth.
+   #+begin_src emacs-lisp
+     (use-package rainbow-delimiters
+       :hook (prog-mode . rainbow-delimiters-mode))
+   #+end_src
+** Rainbow mode
+   Rainbow-mode is a minor mode for Emacs which displays strings representing
+   colors with the color they represent as background.
+   #+begin_src emacs-lisp
+     (use-package rainbow-mode
+       :hook prog-mode
+       :delight)
+   #+end_src
+** Smart-mode-line
+   Smart mode line https://github.com/Malabarba/smart-mode-line/
+
+   Set theme
+   #+begin_src emacs-lisp
+     (use-package smart-mode-line-atom-one-dark-theme)
+
+     (use-package smart-mode-line
+       :after (smart-mode-line-atom-one-dark-theme)
+       :config
+       (setq sml/theme 'atom-one-dark)
+       (sml/setup)
+       (line-number-mode 1)
+       (column-number-mode))
+   #+end_src
+** Move-text
+   https://github.com/emacsfodder/move-text
+   MoveText allows you to move the current line using M-up / M-down
+   (or any other bindings you choose) if a region is marked, it will
+   move the region instead.
+   #+begin_src emacs-lisp
+     (use-package move-text
+       :config
+       (move-text-default-bindings))
+   #+end_src
+** Expand-region
+   Expand region expands the marked (selected) region by semantic units
+   https://github.com/magnars/expand-region.el
+   #+begin_src emacs-lisp
+     (use-package expand-region
+       :bind ("C-$" . er/expand-region))
+   #+end_src
+** Multiple-cursors
+   https://github.com/magnars/multiple-cursors.el
+   #+begin_src emacs-lisp
+     (use-package multiple-cursors
+       :bind (("C-c c m" . mc/edit-lines)
+              ("C-c c n" . mc/mark-next-like-this)
+              ("C-c c p" . mc/mark-previous-like-this)
+              ("C-c c a" . mc/mark-all-like-this)))
+
+     (cheatsheet-add-group '"Multiple cursors"
+                           '(:description "Add a cursor to each line in a region" :key "C-c c m")
+                           '(:description "Add a cursor on next like this" :key "C-c c n")
+                           '(:description "Add a cursor on previous like this" :key "C-c c p")
+                           '(:description "Add a cursor on all like this" :key "C-c c a"))
+   #+end_src
+** Yasnippet
+   YASnippet is a template system for Emacs.
+   https://github.com/joaotavora/yasnippet
+   #+begin_src emacs-lisp
+     (use-package yasnippet
+       :config
+       (yas-global-mode 1)
+       :bind ("C-c y" . yas-insert-snippet)
+       :delight)
+
+     (use-package yasnippet-snippets
+       :delight)
+   #+end_src
+   
+   [[http://andreacrotti.github.io/yasnippet-snippets/snippets.html][here]] is it the web page with all the available snippets installed
+   by yasnippet-snippets
+** YAML-mode
+   YAML mode
+   #+BEGIN_SRC emacs-lisp
+     (use-package yaml-mode
+       :mode  ("\\.yml\\'" . yaml-mode)
+       :mode  ("\\.yaml\\'" . yaml-mode))
+   #+END_SRC
+** Dired-git-info
+   Show git info with ")" key
+   #+begin_src emacs-lisp
+     (use-package dired-git-info
+       :bind (:map dired-mode-map
+                   (")" . dired-git-info-mode)))
+   #+end_src
+** Dired-filter
+   Mode to filter in dired
+   #+begin_src emacs-lisp
+     (use-package dired-filter
+       :bind-keymap
+       ("C-c f" . dired-filter-map))
+   #+end_src
+** Dired-rainbow
+   This package adds more customizable highlighting for files in dired
+   listings. The group dired-faces provides only nine faces and isn't
+   very fine-grained.
+
+   The definitions are added by several macros, currently available are:
+
+   dired-rainbow-define - add face by file extension
+   dired-rainbow-define-chmod - add face by file permissions
+
+   #+begin_src emacs-lisp
+     (use-package dired-rainbow
+     :init
+     (add-hook 'dired-mode-hook
+               '(lambda ()
+                  (dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml") t)
+                  (dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata") t)
+                  (dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx") t)
+                  (dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt") t)
+                  (dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc") t)
+                  (dired-rainbow-define media "#de751f" ("mp3" "mp4" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac") t)
+                  (dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg") t)
+                  (dired-rainbow-define log "#c17d11" ("log") t)
+                  (dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim") t)
+                  (dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js") t)
+                  (dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" "java") t)
+                  (dired-rainbow-define executable "#8cc4ff" ("exe" "msi") t)
+                  (dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar") t)
+                  (dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp") t)
+                  (dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem") t)
+                  (dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf") t)
+                  (dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak") t)
+                  (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules") t)
+                  (dired-rainbow-define-chmod directory "#6cb2eb" "d.*" t)
+                  (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*" t)
+                  )))
+   #+end_src
+** All-the-icons-dired
+   Show files icons in Dired
+   #+begin_src emacs-lisp
+     (use-package all-the-icons)
+
+     (use-package all-the-icons-dired
+       :after (all-the-icons)
+       :hook (dired-mode . all-the-icons-dired-mode))
+   #+end_src
+** Deadgrep
+   Deadgrep, a super fast grep that use ripgrep.
+   #+BEGIN_SRC emacs-lisp
+     (use-package deadgrep
+       :bind ("C-c g" . deadgrep))
+   #+END_SRC
+** Docker
+   Docker.el, emacs integration for docker, using magit-style popups
+   Use =M-x docker= 
+   #+begin_src emacs-lisp
+     (use-package docker
+       :bind ("C-c d" . docker))
+
+     (cheatsheet-add-group '"Docker"
+                           '(:description "Launch docker management" :key "C-c d")
+                           '(:description "Mark/unmark item" :key "m/u")
+                           '(:description "Show commands" :key "?"))
+   #+end_src
+** Dockerfile
+   #+begin_src emacs-lisp
+     (use-package dockerfile-mode
+       :mode ("Dockerfile\\'" . dockerfile-mode))
+   #+end_src
+** Docker-compose
+   #+begin_src emacs-lisp
+     (use-package docker-compose-mode)
+   #+end_src
+** Keychain environment
+   Avoid to enter ssh passphrase every time. Still need to enter the
+   passphrase once in a shell.
+  #+BEGIN_SRC emacs-lisp
+    (use-package keychain-environment
+      :config
+      (keychain-refresh-environment))
+   #+END_SRC
+** Dumb-jump
+   Jump to definition package whit support for multiple languages
+   #+BEGIN_SRC emacs-lisp
+     (use-package dumb-jump
+       :bind (("M-g o" . dumb-jump-go-other-window)
+              ("M-g j" . dumb-jump-go)
+              ("M-g i" . dumb-jump-go-prompt)
+              ("M-g b" . dumb-jump-back)))
+   #+END_SRC
+** Pdf-tools
+   https://github.com/politza/pdf-tools
+   Emacs support library for PDF files.
+   #+BEGIN_SRC emacs-lisp
+     (use-package pdf-tools
+       :pin manual ;; don't reinstall when package updates
+       :mode  ("\\.pdf\\'" . pdf-view-mode)
+       :config
+       (pdf-tools-install :no-query)
+       (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
+
+     (cheatsheet-add-group '"Pdf tools"
+                           '(:description "Scroll up / down by page-full" :key "SPC / backspace")
+                           '(:description "Scroll up / down by line" :key "C-n / C-p")
+                           '(:description "Top of Page / Bottom of Page" :key "< / >")
+                           '(:description "Next Page / Previous Page" :key "n / p")
+                           '(:description "First Page / Last Page" :key "M-< / M->")
+                           '(:description "Incremental Search Forward / Backward" :key "C-s / C-r")
+                           '(:description "Occur (list all lines containing a phrase)" :key "M-s o")
+                           '(:description "Jump to Occur Line" :key "RETURN")
+                           '(:description "Pick a Link and Jump" :key "F")
+                           '(:description "Incremental Search in Links" :key "f")
+                           '(:description "History Back / Forwards" :key "B / N")
+                           '(:description "Display Outline" :key "o")
+                           '(:description "Jump to Section from Outline" :key "RET")
+                           '(:description "Jump to Page" :key "M-g g")
+                           '(:description "Zoom in / Zoom out" :key "+ / -")
+                           '(:description "Fit Height / Fit Width / Fit Page" :key "H / W / P")
+                           '(:description "Trim margins (set slice to bounding box)" :key "s b")
+                           '(:description "Reset margins" :key "s r")
+                           '(:description "Reset Zoom" :key "0")
+                           '(:description "Dark mode" :key "M-x pdf-view-midnight-minor-mode"))
+
+  #+END_SRC
+** Persistent scratch
+   https://github.com/Fanael/persistent-scratch
+   Preserve the scratch buffer across Emacs sessions
+   #-+begin_src emacs-lisp
+     (use-package persistent-scratch
+       :config
+       (persistent-scratch-setup-default))
+   #-+end_src
+** Minions
+   This package implements a menu that lists enabled minor-modes, as
+   well as commonly but not currently enabled minor-modes. It can be
+   used to toggle local and global minor-modes, to access
+   mode-specific menus, and to get help about modes.
+
+   This menu is intended as a replacement for the incomplete yet wide
+   list of enabled minor-modes that is displayed in the mode line by
+   default. To use the menu like this, enable Minions mode.
+   -#+begin_src emacs-lisp
+     (use-package minions
+       :config
+       (minions-mode t))
+   -#+end_src
+** Zzz-to-char
+   https://github.com/mrkkrp/zzz-to-char
+   This package provides two new commands: zzz-to-char and
+   zzz-up-to-char which work like built-ins zap-to-char and
+   zap-up-to-char, but allow you quickly select exact character you
+   want to “zzz” to.
+   #+begin_src emacs-lisp
+     (use-package zzz-to-char
+       :bind ("M-z" . zzz-to-char)
+       ;; Scan only 1000 characters from each side of point.
+       :config
+       (setq zzz-to-char-reach 1000))
+   #+end_src
+** Easy-kill
+   https://github.com/leoliu/easy-kill
+   easy-kill, provides commands easy-kill and easy-mark to let users
+   kill or mark things easily.
+
+   For example, M-w w saves (in the kill ring) current word, repeat w
+   to expand the kill to include the next word. 5 to include the next
+   5 words etc. The other commands also follow this pattern.
+   #+BEGIN_SRC emacs-lisp
+     (use-package easy-kill
+       :bind (([remap kill-ring-save] . easy-kill) ; M-w
+              ("C-M-w" . easy-mark)))
+   #+END_SRC
+** Goto-chg
+   https://github.com/emacs-evil/goto-chg/blob/master/goto-chg.el
+   Goto the point of the most recent edit in the buffer.
+   When repeated, goto the second most recent edit, etc.
+
+   #+begin_src emacs-lisp
+     (use-package goto-chg
+       :bind (("C-é" . goto-last-change)
+              ("C-à" . goto-last-change-reverse)))
+   #+end_src
+** Dashboard
+   https://github.com/emacs-dashboard/emacs-dashboard
+   An extensible emacs startup screen showing you what’s most
+   important.
+   #+begin_src emacs-lisp
+          (use-package dashboard
+            :config
+            (dashboard-setup-startup-hook)
+            ;; Show Dashboard in frames created with emacsclient -c as follows:
+            (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+            ;; Set the title
+            (setq dashboard-banner-logo-title "Welcome to Emacs Dashboard")
+            ;; Set the banner
+            (setq dashboard-startup-banner 'logo)
+            ;; Value can be
+            ;; 'official which displays the official emacs logo
+            ;; 'logo which displays an alternative emacs logo
+            ;; 1, 2 or 3 which displays one of the text banners
+            ;; "path/to/your/image.png" which displays whatever image you would prefer
+            ;; Content is not centered by default. To center, set
+            (setq dashboard-center-content t)
+            ;; Customize widgets
+            (setq dashboard-items '((recents  . 10)
+                                    (projects . 10)
+                                    (bookmarks . 5)
+                                    ; (agenda . 5)
+                                    ))
+            ;; Show agenda for the upcoming seven days
+            (setq show-week-agenda-p t))
+   #+end_src
+** vterm
+   Emacs-libvterm (vterm) is fully-fledged terminal emulator inside
+   GNU Emacs based on libvterm, a C library. As a result of using
+   compiled code (instead of elisp), emacs-libvterm is fully capable,
+   fast, and it can seamlessly handle large outputs.
+   #+BEGIN_SRC emacs-lisp
+     (defun marioba/kill-vterm-buffer ()
+       "Kill vterm buffer if the process is finished"
+       (interactive)
+       (if (vterm-check-proc)
+           (vterm--self-insert)
+         (kill-this-buffer)))
+
+     (use-package vterm
+       :config
+       (setq vterm-copy-exclude-prompt t)
+       ;; buffer name
+       (setq vterm-buffer-name-string "vterm %s")
+       ;; scrollback
+       (setq vterm-max-scrollback 10000)
+       :bind (
+              ;; Create an interactive Vterm buffer
+              ("C-c v v" . vterm)
+              ;;Invoke `vterm' in the project's root
+              ("C-c v p" . projectile-run-vterm)
+              ;; Create an interactive Vterm buffer in another window
+              ("C-c v o" . vterm-other-window)
+              ;; Vterm toggle
+              ("C-c v t" . vterm-toggle)
+              ;; Vterm toggle and insert a cd command
+              ("C-c v c" . vterm-toggle-cd)
+              ;; Go to the next vterm buffer (forward)
+              ("C-c v f" . vterm-toggle-forward)
+              ;; Go to the previous vterm buffer (backward)
+              ("C-c v b" . vterm-toggle-backward)
+              :map vterm-mode-map
+              ("q" . marioba/kill-vterm-buffer)
+       ))
+
+     (cheatsheet-add-group '"Vterm"
+                           '(:description "Toggle copy-mode" :key "C-c C-t")
+                           '(:description "Copy region and leave copy mode" :key "RET")
+                           '(:description "Send C-c" :key "C-c C-c")
+                           '(:description "Create an interactive Vterm buffer" :key "C-c v v")
+                           '(:description "Invoke `vterm' in the project's root" :key "C-c v p")
+                           '(:description "Create an interactive Vterm buffer in another window" :key "C-c v o")
+                           '(:description "Vterm toggle" :key "C-c v t")
+                           '(:description "Vterm toggle and insert a cd command" :key "C-c v c")
+                           '(:description "Go to the next (forward) vterm buffer" :key "C-c v f")
+                           '(:description "Go to the previous (backward) vterm buffer" :key "C-c v b"))
+   #+END_SRC
+** Lorem-ipsum
+   Add filler lorem ipsum text to Emacs
+   https://github.com/jschaf/emacs-lorem-ipsum
+   #+begin_src emacs-lisp
+     (use-package lorem-ipsum)
+   #+end_src
+** Org-tree-slide
+   https://github.com/takaxp/org-tree-slide The main purpose of this
+   elisp is to create presentations by handle each tree in an org
+   buffer as a slide by simple narrowing. This emacs lisp is a minor
+   mode for Emacs Org-mode. 
+
+   #+BEGIN_SRC emacs-lisp 
+     (use-package org-tree-slide
+       :custom
+       (org-tree-slide-slide-in-effect nil)
+       (org-tree-slide-header nil)
+       ;; Consider as slide only until this level
+       (org-tree-slide-skip-outline-level 4)
+       ;; Skip outlines starting with COMMENT
+       (org-tree-slide-skip-comments t)
+       :bind (:map org-tree-slide-mode-map
+                   ("<left>" . org-tree-slide-move-previous-tree)
+                   ("<right>" . org-tree-slide-move-next-tree))
+       :hook ((org-tree-slide-play . org-display-inline-images)
+              (org-tree-slide-play . (lambda () (display-line-numbers-mode 0)))
+              (org-tree-slide-stop . org-remove-inline-images)
+              (org-tree-slide-stop . (lambda () (display-line-numbers-mode 1)))))
+
+     (cheatsheet-add-group '"Org-tree-slide"
+                           '(:description "Start presentation" :key "M-x org-tree-slide-mode")
+                           '(:description "Next / previous slide" :key "left / right")
+                           '(:description "Toggle content slide" :key "C-x s c"))
+
+   #+END_SRC
+** Org-bullets
+   #+begin_src emacs-lisp
+     (use-package org-bullets
+       :hook (org-mode . (lambda () (org-bullets-mode 1)))
+       :config
+       (setq org-bullets-bullet-list '("◉" "○" "✸" "✿" "✜" "◆" "☯" "◉" "○" "✸" "✿" "✜" "◆" "☯")))
+   #+end_src
+** Eshell-vterm
+   An Emacs global minor mode allowing eshell to use vterm for visual commands.
+   #+begin_src emacs-lisp
+     (use-package eshell-vterm
+       :load-path "site-lisp/eshell-vterm"
+       :demand t
+       :after eshell
+       :config
+       (eshell-vterm-mode)
+       ;; Add an alias to eshell to be able to run any command in visual mode
+       (defalias 'eshell/x 'eshell-exec-visual))
+   #+end_src
+** Mosey
+   Mosey makes it easy to mosey back and forth in your buffers.
+   #+begin_src emacs-lisp
+     (use-package mosey
+       ;; cycle into "beginning of line", "first indentation" and "end of line"
+       :bind ("C-a" . mosey-backward-cycle))
+   #+end_src
+** Vertico
+   #+begin_src emacs-lisp
+     (use-package vertico
+       :init
+       (vertico-mode)
+       :custom
+       ;; Show more candidates
+       (vertico-count 20))
+
+     ;; Use `consult-completion-in-region' if Vertico is enabled.
+     ;; Otherwise use the default `completion--in-region' function.
+     (setq completion-in-region-function
+           (lambda (&rest args)
+             (apply (if vertico-mode
+                        #'consult-completion-in-region
+                      #'completion--in-region)
+                    args)))
+   #+end_src
+** Orederless
+   #+begin_src emacs-lisp
+     (use-package orderless
+       :init
+       ;; Configure a custom style dispatcher (see the Consult wiki)
+       ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
+       ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+       (setq completion-styles '(orderless)
+             completion-category-defaults nil
+             completion-category-overrides '((file (styles partial-completion)))))
+   #+end_src
+** Marginalia
+   #+begin_src emacs-lisp
+     ;; Enable richer annotations using the Marginalia package
+     (use-package marginalia
+       ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+       :bind (("M-A" . marginalia-cycle)
+              :map minibuffer-local-map
+              ("M-A" . marginalia-cycle))
+
+       ;; The :init configuration is always executed (Not lazy!)
+       :init
+
+       ;; Must be in the :init section of use-package such that the mode gets
+       ;; enabled right away. Note that this forces loading the package.
+       (marginalia-mode))
+   #+end_src
+** Embark
+   #+begin_src emacs-lisp
+     (use-package embark
+       :bind
+       (("C-." . embark-act)         ;; pick some comfortable binding
+        ("C-;" . embark-dwim)        ;; good alternative: M-.
+        ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+       :init
+       ;; Optionally replace the key help with a completing-read interface
+       (setq prefix-help-command #'embark-prefix-help-command)
+       :config
+       ;; Hide the mode line of the Embark live/completions buffers
+       (add-to-list 'display-buffer-alist
+                    '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                      nil
+                      (window-parameters (mode-line-format . none)))))
+   #+end_src
+** Consult
+   #+begin_src emacs-lisp
+     ;; Example configuration for Consult
+     (use-package consult
+       ;; Replace bindings. Lazily loaded due by `use-package'.
+       :bind (;; C-c bindings (mode-specific-map)
+              ("C-c h" . consult-history)
+              ("C-c m" . consult-mode-command)
+              ("C-c b" . consult-bookmark)
+              ("C-c k" . consult-kmacro)
+              ;; C-x bindings (ctl-x-map)
+              ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+              ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+              ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+              ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+              ;; Custom M-# bindings for fast register access
+              ("M-#" . consult-register-load)
+              ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+              ("C-M-#" . consult-register)
+              ;; Other custom bindings
+              ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+              ("<help> a" . consult-apropos)            ;; orig. apropos-command
+              ;; M-g bindings (goto-map)
+              ("M-g e" . consult-compile-error)
+              ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+              ("M-g g" . consult-goto-line)             ;; orig. goto-line
+              ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+              ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+              ("M-g m" . consult-mark)
+              ("M-g k" . consult-global-mark)
+              ("M-g i" . consult-imenu)
+              ("M-g I" . consult-imenu-multi)
+              ;; M-s bindings (search-map)
+              ("M-s f" . consult-find)
+              ("M-s F" . consult-locate)
+              ("M-s g" . consult-grep)
+              ("M-s G" . consult-git-grep)
+              ("M-s r" . consult-ripgrep)
+              ("M-s l" . consult-line)
+              ("M-s L" . consult-line-multi)
+              ("M-s m" . consult-multi-occur)
+              ("M-s k" . consult-keep-lines)
+              ("M-s u" . consult-focus-lines)
+              ;; Isearch integration
+              ("M-s e" . consult-isearch-history)
+              :map isearch-mode-map
+              ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+              ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+              ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+              ("M-s L" . consult-line-multi))           ;; needed by consult-line to detect isearch
+
+       ;; Enable automatic preview at point in the *Completions* buffer. This is
+       ;; relevant when you use the default completion UI. You may want to also
+       ;; enable `consult-preview-at-point-mode` in Embark Collect buffers.
+       :hook (completion-list-mode . consult-preview-at-point-mode)
+
+       ;; The :init configuration is always executed (Not lazy)
+       :init
+
+       ;; Optionally configure the register formatting. This improves the register
+       ;; preview for `consult-register', `consult-register-load',
+       ;; `consult-register-store' and the Emacs built-ins.
+       (setq register-preview-delay 0
+             register-preview-function #'consult-register-format)
+
+       ;; Optionally tweak the register preview window.
+       ;; This adds thin lines, sorting and hides the mode line of the window.
+       (advice-add #'register-preview :override #'consult-register-window)
+
+       ;; Optionally replace `completing-read-multiple' with an enhanced version.
+       (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+
+       ;; Use Consult to select xref locations with preview
+       (setq xref-show-xrefs-function #'consult-xref
+             xref-show-definitions-function #'consult-xref)
+
+       ;; Configure other variables and modes in the :config section,
+       ;; after lazily loading the package.
+       :config
+
+       ;; Optionally configure preview. The default value
+       ;; is 'any, such that any key triggers the preview.
+       ;; (setq consult-preview-key 'any)
+       ;; (setq consult-preview-key (kbd "M-."))
+       ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+       ;; For some commands and buffer sources it is useful to configure the
+       ;; :preview-key on a per-command basis using the `consult-customize' macro.
+       (consult-customize
+        consult-theme
+        :preview-key '(:debounce 0.2 any)
+        consult-ripgrep consult-git-grep consult-grep
+        consult-bookmark consult-recent-file consult-xref
+        consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+        :preview-key (kbd "M-."))
+
+       ;; Optionally configure the narrowing key.
+       ;; Both < and C-+ work reasonably well.
+       (setq consult-narrow-key "<") ;; (kbd "C-+")
+
+       ;; Optionally make narrowing help available in the minibuffer.
+       ;; You may want to use `embark-prefix-help-command' or which-key instead.
+       ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+       ;; Optionally configure a function which returns the project root directory.
+       ;; There are multiple reasonable alternatives to chose from.
+       ;;;; 1. project.el (project-roots)
+       (setq consult-project-root-function
+             (lambda ()
+               (when-let (project (project-current))
+                 (car (project-roots project)))))
+       ;;;; 2. projectile.el (projectile-project-root)
+       ;; (autoload 'projectile-project-root "projectile")
+       ;; (setq consult-project-root-function #'projectile-project-root)
+       ;;;; 3. vc.el (vc-root-dir)
+       ;; (setq consult-project-root-function #'vc-root-dir)
+       ;;;; 4. locate-dominating-file
+       ;; (setq consult-project-root-function (lambda () (locate-dominating-file "." ".git")))
+     )
+   #+end_src
+** Embark-consult
+   #+begin_src emacs-lisp
+     ;; Consult users will also want the embark-consult package.
+     (use-package embark-consult
+       :after (embark consult)
+       :demand t ; only necessary if you have the hook below
+       ;; if you want to have consult previews as you move around an
+       ;; auto-updating embark collect buffer
+       :hook
+       (embark-collect-mode . consult-preview-at-point-mode))
+
+   #+end_src
+** Savehist
+   #+begin_src emacs-lisp
+     ;; Persist history over Emacs restarts.
+     (use-package savehist
+       :init
+       (savehist-mode))
+   #+end_src
+** Swiper
+   #+begin_src emacs-lisp
+     (use-package swiper
+       :bind (("C-s" . swiper)
+       ))
+   #+end_src
+** Helpful
+   #+begin_src emacs-lisp
+     ;; Helpful
+     (use-package helpful
+       :commands (helpful-callable helpful-variable helpful-command helpful-key)
+       :bind
+       ([remap describe-function] . helpful-function)
+       ([remap describe-command] . helpful-command)
+       ([remap describe-variable] . helpful-variable)
+       ([remap describe-key] . helpful-key))
+   #+end_src
+** Undo-fu
+   Simple, stable linear undo with redo for Emacs.
+
+   This is a light weight wrapper for Emacs built-in undo system,
+   adding convenient undo/redo without losing access to the full undo
+   history, allowing you to visit all previous states of the document
+   if you need.
+
+   https://github.com/emacsmirror/undo-fu
+
+   #+begin_src emacs-lisp
+     (use-package undo-fu
+       :config
+       (global-unset-key (kbd "C-z"))
+       (global-set-key (kbd "C-z")   'undo-fu-only-undo)
+       (global-set-key (kbd "C-S-z") 'undo-fu-only-redo)
+       :custom
+       (undo-fu-allow-undo-in-region t))
+
+     (cheatsheet-add-group 'Undo/redo
+                           '(:description "Undo" :key "C-z")
+                           '(:description "Redo" :key "C-Z")
+                           '(:description "Undo traverse previous undo/redo steps" :key "C-g C-z")
+                           '(:description "Redo passing initial undo action" :key "C-g C-Z"))
+   #+end_src
+** Fish-completions
+   Used to have a better completion in eshell
+   #+begin_src emacs-lisp
+     (use-package fish-completion
+       :init
+       (when (and (executable-find "fish")
+              (require 'fish-completion nil t))
+         (global-fish-completion-mode)))
+   #+end_src
+** Dabbrev
+    #+begin_src emacs-lisp
+     (use-package dabbrev
+       ;; Swap M-/ and C-M-/
+       :bind (("M-/" . dabbrev-completion)
+              ("C-M-/" . dabbrev-expand)))
+   #+end_src
+** Eshell-syntax-hilighting
+   #+begin_src emacs-lisp
+     (use-package eshell-syntax-highlighting
+       :config
+       ;; Enable in all Eshell buffers.
+       (eshell-syntax-highlighting-global-mode +1))
+   #+end_src
+** Consult-dir
+   Consult-dir allows you to easily insert directory paths into the minibuffer prompt in Emacs.
+   #+begin_src emacs-lisp
+     (use-package consult-dir
+       :ensure t
+       :bind (("C-x C-d" . consult-dir)
+              :map vertico-map
+              ("C-x C-d" . consult-dir)
+              ("C-x C-j" . consult-dir-jump-file))
+       :config
+       (add-to-list 'consult-dir-sources 'consult-dir--source-tramp-ssh t)
+       )
+
+          ;; https://karthinks.com/software/jumping-directories-in-eshell/
+          (defun eshell/z (&optional regexp)
+              "Navigate to a previously visited directory in eshell, or to
+          any directory proferred by `consult-dir'."
+              (let ((eshell-dirs (delete-dups
+                                  (mapcar 'abbreviate-file-name
+                                          (ring-elements eshell-last-dir-ring)))))
+                (cond
+                 ((and (not regexp) (featurep 'consult-dir))
+                  (let* ((consult-dir--source-eshell `(:name "Eshell"
+                                                       :narrow ?e
+                                                       :category file
+                                                       :face consult-file
+                                                       :items ,eshell-dirs))
+                         (consult-dir-sources (cons consult-dir--source-eshell
+                                                    consult-dir-sources)))
+                    (eshell/cd (substring-no-properties
+                                (consult-dir--pick "Switch directory: ")))))
+                 (t (eshell/cd (if regexp (eshell-find-previous-directory regexp)
+                                      (completing-read "cd: " eshell-dirs)))))))
+   #+end_src
+** Shell-pop
+   shell-pop.el helps you to use shell easily on Emacs. Only one key action to work.
+   #+begin_src emacs-lisp
+     (use-package shell-pop
+       :custom
+       ;; custom-set-variables was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       (shell-pop-default-directory "/home/mario")
+       (shell-pop-shell-type '("eshell" "eshell" (lambda () (eshell)))) (shell-pop-full-span t)
+       (shell-pop-universal-key "§")
+       (shell-pop-window-size 40)
+       (shell-pop-full-span t)
+       (shell-pop-window-position "bottom")
+       (shell-pop-autocd-to-working-dir t)
+       (shell-pop-restore-window-configuration t)
+       (shell-pop-cleanup-buffer-at-process-exit t))
+   #+end_src
+** Highlight-indentation
+   #+begin_src emacs-lisp
+     (use-package highlight-indentation
+       :config
+       (set-face-background 'highlight-indentation-face "#333344")
+       :hook
+       ((python-mode . highlight-indentation-mode)))
+   #+end_src
+** Shelldon
+An enhancement of async-shell-command that provides a more
+minibuffer-centric workflow, allowing you to store and navigate
+command outputs in separate buffers among other things.
+#+begin_src emacs-lisp
+  (use-package shelldon
+    :straight (shelldon :type git
+                        :host github
+                        :repo "Overdr0ne/shelldon"
+                        :branch "master"
+                        :files ("shelldon.el")))
+#+end_src
+* Built-it features and packages
+  This section contains settings for built-in Emacs features.
+** Executable path
+   Set the path where to find executables
+   #+begin_src emacs-lisp
+     (setq exec-path (append exec-path '("~/.local/bin")))
+   #+end_src
+** Performances
+   Allow 20MB of memory (instead of 0.76MB) before calling garbage
+   collection. This means GC runs less often, which speeds up some operations.
+   #+BEGIN_SRC emacs-lisp
+     (setq gc-cons-threshold (* 100 1024 1024)) ;; 100 MB
+     (setq read-process-output-max (* 1 1024 1024)) ;; 1 MB
+     (setq process-adaptive-read-buffering nil)
+   #+END_SRC
+** Relocate backup files to a single directory
+    #+BEGIN_SRC emacs-lisp
+      (setq backup-directory-alist
+        '(("." . "~/.emacs_backups")))
+    #+END_SRC
+** Always follow symlinks
+   When opening a file, always follow symlinks.
+    #+BEGIN_SRC emacs-lisp
+      (setq vc-follow-symlinks t)
+    #+END_SRC
+** Sentences have one space after a period
+   Don't assume that sentences should have two spaces after
+   periods.
+   #+BEGIN_SRC emacs-lisp
+     (setq sentence-end-double-space nil)
+   #+END_SRC
+** Confirm before closing Emacs
+   #+BEGIN_SRC emacs-lisp
+     (setq confirm-kill-emacs 'y-or-n-p)
+   #+END_SRC
+** Disable startup message
+   #+begin_src emacs-lisp
+     (setq inhibit-startup-message t)
+   #+end_src
+** Disable menu and toolbar
+   #+begin_src emacs-lisp
+     ;; disable menu bar
+     (menu-bar-mode -1)
+
+     ;; disable tool bar
+     (tool-bar-mode -1)
+   #+end_src
+** Disable scratch message
+   #+begin_src emacs-lisp
+     (setq initial-scratch-message "")
+   #+end_src
+** Ask y-or-n instead of yes-or-no
+   #+begin_src emacs-lisp
+     (fset 'yes-or-no-p 'y-or-n-p)
+   #+end_src
+** Display line numbers
+   #+BEGIN_SRC emacs-lisp
+     (setq-default display-line-numbers-type t
+                   display-line-numbers-width 4
+                   display-line-numbers-widen t)
+
+     (add-hook 'text-mode-hook #'display-line-numbers-mode t)
+     (add-hook 'prog-mode-hook #'display-line-numbers-mode t)
+   #+END_SRC
+** Show trailing whitespaces
+   #+BEGIN_SRC emacs-lisp
+     ;; (add-hook 'text-mode-hook
+     ;;    (lambda ()
+     ;;      (setq show-trailing-whitespace t)))
+     (add-hook 'prog-mode-hook
+        (lambda ()
+          (setq show-trailing-whitespace t)))
+     ;;(setq-default show-trailing-whitespace t)
+   #+END_SRC
+** Set font
+   Font fantasque sans mono
+   #+BEGIN_SRC emacs-lisp
+     (set-frame-font "Fantasque Sans Mono")
+     (add-to-list 'default-frame-alist '(font . "Fantasque Sans mono"))
+   #+END_SRC
+** Visible bell
+   #+BEGIN_SRC emacs-lisp
+     (setq visible-bell t)
+   #+END_SRC
+** Tab
+   Use spaces instead of tabs
+   #+begin_src emacs-lisp
+     (setq-default indent-tabs-mode nil)
+   #+end_src
+
+   Set default tab width to 2 for all buffers. Python mode will guess the indent
+   based on the rest of the file and otherwise default it to 4, and other
+   programming mode too.
+   #+begin_src emacs-lisp
+     (setq-default tab-width 2)
+   #+end_src
+** Disable scroll bar
+   #+begin_src emacs-lisp
+     (scroll-bar-mode 0)
+   #+end_src
+** Save clipboard into killring
+   Save the clipboard (interprogram copy-paste) content into the killring before kill something
+   #+BEGIN_SRC emacs-lisp
+     (setq save-interprogram-paste-before-kill t)
+   #+END_SRC
+** Auto revert files on change
+   When something changes a file, automatically refresh the buffer containing
+   that file so they can’t get out of sync.
+   #+begin_src emacs-lisp
+     (global-auto-revert-mode t)
+   #+end_src
+** Windmove
+   Windmove is built into Emacs. It lets you move point from window to window
+   using Shift and the arrow keys. This is easier to type than ‘C-x o’ when
+   there are multiple windows open.
+   #+begin_src emacs-lisp
+     (when (fboundp 'windmove-default-keybindings)
+       (windmove-default-keybindings))
+   #+end_src
+** Winner-mode
+   Allows to ‘undo’ (and ‘redo’) changes in the window configuration with the
+   key commands ‘C-c left’ and ‘C-c right’.
+   #+begin_src emacs-lisp
+     (when (fboundp 'winner-mode)
+       (winner-mode 1))
+   #+end_src
+** Eshell
+   #+begin_src emacs-lisp
+     (defun marioba/configure-eshell ()
+       ;; Save command history when commands are entered
+       (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+
+       ;; Truncate buffer for performance
+       (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
+
+       (setq eshell-history-size         10000
+             eshell-buffer-maximum-lines 10000
+             eshell-hist-ignoredups t
+             eshell-highlight-prompt t
+             eshell-scroll-to-bottom-on-input t
+             eshell-prefer-lisp-functions nil))
+
+     (require 'subr-x)
+     (defun marioba/prompt-color-tramp ()
+       "Change prompt color if a tramp session is open"
+       (if (file-remote-p default-directory)
+           (set-face-foreground 'eshell-prompt "red")
+           (set-face-foreground 'eshell-prompt "green")
+         ))
+
+     (defun eshell-buffer-name ()
+       (rename-buffer (concat "*eshell*<" (eshell/pwd) ">") t))
+
+     (defun marioba/configure-eshell-prompt ()
+       (use-package dash)
+       (use-package s)
+       (require 'dash)
+       (require 's)
+       (require 'cl)
+
+       (defmacro with-face (STR &rest PROPS)
+         "Return STR propertized with PROPS."
+         `(propertize ,STR 'face (list ,@PROPS)))
+
+       (defmacro esh-section (NAME ICON FORM &rest PROPS)
+         "Build eshell section NAME with ICON prepended to evaled FORM with PROPS."
+         `(setq ,NAME
+                (lambda () (when ,FORM
+                             (-> ,ICON
+                                 (concat esh-section-delim ,FORM)
+                                 (with-face ,@PROPS))))))
+
+       (defun esh-acc (acc x)
+         "Accumulator for evaluating and concatenating esh-sections."
+         (--if-let (funcall x)
+             (if (s-blank? acc)
+                 it
+               (concat acc esh-sep it))
+           acc))
+
+       (defun esh-prompt-func ()
+         "Build `eshell-prompt-function'"
+         (concat esh-header
+                 (-reduce-from 'esh-acc "" eshell-funcs)
+                 "\n"
+                 eshell-prompt-string))
+       ;; Separator between esh-sections
+       (setq esh-sep "  ")  ; or " | "
+       ;; Separator between an esh-section icon and form
+       (setq esh-section-delim " ")
+       ;; Eshell prompt header
+       (setq esh-header "\n┌─ ")  ; or "\n┌─"
+       ;; Eshell prompt regexp and string. Unless you are varying the prompt by eg.
+       ;; your login, these can be the same.
+       (setq eshell-prompt-regexp "└─> ")   ; or "└─> "
+       (setq eshell-prompt-string "└─> ")   ; or "└─> "
+       (esh-section esh-dir
+                    "🖿"  ; (folder)
+                    (abbreviate-file-name (eshell/pwd))
+                    '(:foreground "dodger blue" :weight ultra-bold))
+       (esh-section esh-git
+                    ""  ; (git icon)
+                    (magit-get-current-branch)
+                    '(:foreground "pink"))
+       ;;(esh-section esh-python
+       ;;             ""  ; (python icon)
+       ;;             pyvenv-virtual-env-name)
+       (esh-section esh-clock
+                    "⌚"  ; (clock icon)
+                    (format-time-string "%H:%M" (current-time))
+                    '(:foreground "forest green"))
+       ;; Below I implement a "prompt number" section
+       (setq esh-prompt-num 0)
+       (add-hook 'eshell-exit-hook (lambda () (setq esh-prompt-num 0)))
+       (advice-add 'eshell-send-input :before
+                   (lambda (&rest args) (setq esh-prompt-num (incf esh-prompt-num))))
+       (esh-section esh-num
+                    ""  ; (list icon)
+                    (number-to-string esh-prompt-num)
+                    '(:foreground "brown"))
+       ;; Choose which eshell-funcs to enable
+       (setq eshell-funcs (list esh-dir esh-git esh-clock))
+       ;; Enable the new eshell prompt
+       (setq eshell-prompt-function 'esh-prompt-func))
+
+     (use-package eshell
+       :hook
+       (eshell-first-time-mode . marioba/configure-eshell)
+       (eshell-post-command . marioba/prompt-color-tramp)
+       ;(eshell-directory-change . eshell-buffer-name)
+       ;(eshell-prompt-load . eshell-buffer-name)
+       :custom
+       ;(eshell-destroy-buffer-when-process-dies t)
+       ;; Set some commands to be shown as visual commands in ansi-term
+       (eshell-visual-commands '(
+                                 ;; "ssh"
+                                 ;; "sftp"
+                                 "htop"
+                                 "zsh"
+                                 ;; "yay"
+                                 ;; "pacman"
+                                 ;; "docker"
+                                 ;; "docker-compose"
+                                 ))
+       :init
+       (marioba/configure-eshell-prompt)
+       :bind
+       ("C-c e" . eshell)
+       ("C-c E" . projectile-run-eshell)
+       :config
+       ;Let’s make tramp a bit faster:
+      ;; cache file-name forever
+      (setq remote-file-name-inhibit-cache nil)
+      ;; make sure vc stuff is not making tramp slower
+      (setq vc-ignore-dir-regexp
+       (format "%s\\|%s"
+         vc-ignore-dir-regexp
+         tramp-file-name-regexp))
+      ;; not sure why we have this? just cargo-culting from an answer I saw
+      ;; online.
+      (setq tramp-verbose 1)
+      ;; projectile has the fun side-effect of wanting to calculate the
+      ;; project name, which makes tramp oh-so-much-slower.
+      (setq projectile-mode-line "Projectile")
+      )
+
+   #+end_src
+
+   Cheatsheet
+   #+begin_src emacs-lisp
+     (cheatsheet-add-group '"Eshell"
+                           '(:description "Lauch eshell" :key "C-c e")
+                           '(:description "Lauch eshell of the current projectile project" :key "C-c E")
+                           '(:description "Eshell history" :key "C-c C-l")
+                           '(:description "Terminate process" :key "C-c C-c")
+                           '(:description "cd to a remote directory via tramp" :key "cd /ssh:root@blahblah.org:")
+                           '(:description "Scroll through history" :key "M-n / M-p")
+                           '(:description "Select from history" :key "M-r")
+                           '(:description "Move teo previous prompt" :key "C-c C-p")
+                           '(:description "Insert buffer name from list" :key "C-c M-b")
+                           '(:description "Show defined aliases" :key "alias")
+                           '(:description "Redirect output of command to buffer" :key "... > #<buffer-name>")
+                           '(:description "Pipe to the system clipboard using a pseudodevice" :key "... > /dev/clip")
+                           '(:description "List recent visited directories" :key "cd =")
+                           '(:description "Go to recent visited directory" :key "cd -NUMBER"))
+   #+end_src
+** Org-mode
+   Verify that the package org is not installed from packages
+   otherwise org-babel with python doesn't works correctly (ev.
+   manually remove the directory org-... from .emacs.d/elpa/
+*** General settings
+    Avoid inadvertent text edit in invisible area
+    #+begin_src emacs-lisp
+      (setq org-catch-invisible-edits 'show-and-error)
+    #+end_src
+
+    In collapsed view, hide empty lines between subtrees
+    #+begin_src emacs-lisp
+      (setq org-cycle-separator-lines 0)
+    #+end_src
+
+    Syntax highlight the inline code and removes the annoying “Do you
+    want to execute” your code when you type: C-c C-c
+    #+begin_src emacs-lisp
+      (setq org-confirm-babel-evaluate nil
+        org-src-fontify-natively t)
+    #+end_src
+
+    hide the emphasis markup (e.g. /.. / for italics, *.. * for bold, etc.):
+    #+begin_src emacs-lisp
+      (setq org-hide-emphasis-markers t)
+    #+end_src
+
+    Export in markdown
+    #+begin_src emacs-lisp
+      (require 'ox-md nil t)
+    #+end_src
+
+    Set ellipsis for folded sections
+    #+begin_src emacs-lisp
+      (setq org-ellipsis " ⮷")
+    #+end_src
+
+    Add support for unix confs
+    #+begin_src emacs-lisp
+      (push '("conf-unix" . conf-unix) org-src-lang-modes)
+    #+end_src
+
+    Set a bell for the org-timer (M-x org-timer-set-timer)
+    #+begin_src emacs-lisp
+      (setq org-clock-sound "~/sounds/mixkit-street-public-alarm-997.wav")
+    #+end_src
+*** Keyword sets
+    I use two workflow sets:
+
+    One for TODOs which can either be TODO or DONE Another for tasks that I am
+    WAITING for something to happen or which are in PROGRESS Additionally I
+    sometimes use the keywords PROJECT and AGENDA to denote special bullets that
+    I might tag (schedule/deadline) in the agenda. These keywords give semantics
+    to those bullets.
+
+    Note that “|” denotes a semantic state change that is reflected in a
+    different color. Putting the pipe at the end means that all states prior
+    should be shown in the same color.
+
+    #+begin_src emacs-lisp
+      (setq org-todo-keywords
+                '((sequence "TODO" "WAITING" "|" "DONE" "CANCELED")
+                  (sequence "GOAL" "|" "ACHIEVED(@)")
+                  (sequence "RULE" "|" "HABIT(@)")
+                 ))
+    #+end_src
+*** Capture templates
+    #+begin_src emacs-lisp
+      (setq org-html-validation-link nil)  ;; removes validation link from exported html file
+      (require 'org-protocol)
+
+      (setq org-capture-templates
+            '(("l" "Link" entry (file+headline org-default-links-file "Bookmarks")
+               "* %^L %^g %(org-set-property \"CREATED\" \"%U\")\n" )
+              ("i" "Idea" entry (file+headline org-default-notes-file "Ideas")
+               "* %?\n" )
+              ("j" "Journal" entry (file+olp+datetree org-default-journal-file) "* %?\n")
+              ("t" "Todo" entry (file org-default-notes-file)
+               "* TODO %?\n%u\n%a\n")
+              ("m" "me TODO" entry (file+headline "~/Dropbox/org/me.org" "Tasks")
+               "* TODO %?\n  %i\n  %a")
+
+              ;; Used by org-linkz script in browser to capture bookmarks
+              ("o" "Link capture" entry (file+headline "~/Dropbox/org/org-linkz/Linkz.org" "INBOX")
+               "* %a %U"
+               :immediate-finish t)))
+
+      (setq org-protocol-default-template-key "o")
+    #+end_src
+*** Org-babel
+   Add support for these languages
+   #+BEGIN_SRC emacs-lisp
+     (org-babel-do-load-languages
+      'org-babel-load-languages
+      '(
+        (python . t)
+        (emacs-lisp . t)
+        (shell . t)
+        (js . t)
+        (css . t)
+        (java . t)
+    ))
+   #+end_src
+*** Org-agenda
+    #+begin_src emacs-lisp
+      ;; Define files to be used for agenda
+      (setq org-agenda-files
+            (list
+             "/home/mario/Dropbox/org/index.org"
+             "/home/mario/Dropbox/org/me.org"
+             "/home/mario/Dropbox/org/opengisch.org"
+             ))
+
+      ;; Keybinding
+      (global-set-key (kbd "C-c a") 'org-agenda)
+    #+end_src
+
+    Custom agenda
+    #+begin_src emacs-lisp
+                  (setq org-agenda-custom-commands
+                        '(("p" "Personal agenda"
+                           ((agenda ""
+                                    ((org-agenda-files '("~/Dropbox/org/me.org"))))
+                            (todo "GOAL"
+                                    ((org-agenda-files '("~/Dropbox/org/me.org"))
+                                    (org-agenda-overriding-header "Personal goals:")))
+                            (todo "RULE"
+                                    ((org-agenda-files '("~/Dropbox/org/me.org"))
+                                    (org-agenda-overriding-header "Personal rules:")))))
+                        ("w" "Work agenda"
+                           ((agenda ""
+                                    ((org-agenda-files '("~/Dropbox/org/opengisch.org"))))
+                            (todo "GOAL"
+                                    ((org-agenda-files '("~/Dropbox/org/opengisch.org"))
+                                    (org-agenda-overriding-header "Professional goals:")))
+                            (todo "RULE"
+                                    ((org-agenda-files '("~/Dropbox/org/opengisch.org"))
+                                    (org-agenda-overriding-header "Professional rules:")))))))
+    #+end_src
+*** Optional modules
+    #+begin_src emacs-lisp
+      (setq org-modules '(org-habit))
+      (eval-after-load 'org
+       '(org-load-modules-maybe t))
+    #+end_src
+*** Structure templates
+    Expands snippets to structures (e.g. <s TAB creates a code block)
+    #+begin_src emacs-lisp
+      (require 'org-tempo)
+      (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+      (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+      (add-to-list 'org-structure-template-alist '("py" . "src python"))
+    #+end_src
+*** Cheatsheet
+    #+begin_src emacs-lisp
+      (cheatsheet-add-group 'Org-mode
+                            '(:description "Wrap lines (fill paragraph)" :key "M-q")
+                            '(:description "Justify paragraph" :key "C-u M-q")
+                            '(:description "Store a link to the current location" :key "C-c l")
+                            '(:description "Insert link/edit link at point" :key "C-c C-l")
+                            '(:description "Open link at point" :key "C-c C-o")
+                            '(:description "Toggle TODO" :key "C-c C-t")
+                            '(:description "Insert timestamp" :key "C-c t")
+                            '(:description "Propt for a date" :key "C-c .")
+                            '(:description "Insert DEADLINE" :key "C-c C-d")
+                            '(:description "Insert SCHEDULE" :key "C-c C-s")
+                            '(:description "Refile entry or region at point (in the same file)" :key "C-c C-w")
+                            '(:description "Archive" :key "C-c C-x C-a")
+                            '(:description "Insert code or other templates" :key "C-c C-,")
+                            '(:description "Expand only the headings (not the text as with TAB)" :key "C-c C-k"))
+      (cheatsheet-add-group '"Org-mode tables"
+                            '(:description "Move the current column" :key "M-<left> / <right>")
+                            '(:description "Kill the current column" :key "M-S-<left>")
+                            '(:description "Insert new column left" :key "M-S-<right>")
+                            '(:description "Move the current row" :key "M-<up> / <down>")
+                            '(:description "Kill the current row" :key "M-S-<up>")
+                            '(:description "Insert new row above" :key "M-S-<down>")
+                            '(:description "Insert hline" :key "C-c RET"))
+      (cheatsheet-add-group 'Org-agenda
+                            '(:description "Toggle TODO" :key "t")
+                            '(:description "Diplay the original location" :key "SPC")
+                            '(:description "Go to the original location" :key "TAB")
+                            '(:description "Go to the original location and delete other windows" :key "RET")
+                            '(:description "Delete other windows" :key "o")
+                            '(:description "Switch to day / week view" :key "d/w")
+                            '(:description "Go forward/backward in time" :key "f/b")
+                            '(:description "Go to today" :key ".")
+                            '(:description "Prompt for date and go there" :key "j")
+                            '(:description "Recreate the agenda" :key "g")
+                            '(:description "Save all org buffers in the current emacs session" :key "s")
+                            '(:description "Delete item and subtree" :key "C-k"))
+    #+end_src
+** Dired
+
+   #+begin_src emacs-lisp
+     (add-hook 'dired-mode-hook
+               '(lambda ()
+                  ;; Go up a directory with "," key, better than default "^" on swiss keyboard
+                  (local-set-key (kbd ",") 'dired-up-directory)
+                  ;; Auto revert mode to show refresh on changes but without the message in the minibuffer
+                  (auto-revert-mode t)
+                  (setq auto-revert-verbose nil)
+                  ))
+   #+end_src
+
+   Set "ls" options
+   #+begin_src emacs-lisp
+     (setq dired-listing-switches "-lha") ;; --group-directories-first")
+   #+end_src
+
+   Allow to copy/move files from one window to another
+   #+begin_src emacs-lisp
+     (setq dired-dwim-target t)
+   #+end_src
+
+   Always recursively delete and copy directories
+   #+begin_src emacs-lisp
+     (setq dired-recursive-deletes 'always)
+     (setq dired-recursive-copies 'always)
+   #+end_src
+
+   Delete by moving to trash
+   #+begin_src emacs-lisp
+     (setq delete-by-moving-to-trash t
+         trash-directory "~/.local/share/Trash/files")
+   #+end_src
+
+   Enable dired-jump before dired and dired-x are properly loaded
+   otherwise the first time I call dired-jump, the keybinding doesn't work
+   #+begin_src emacs-lisp
+     (autoload 'dired-jump "dired-x"
+                 "Jump to Dired buffer corresponding to current buffer." t)
+
+     (autoload 'dired-jump-other-window "dired-x"
+                 "Like \\[dired-jump] (dired-jump) but in other window." t)
+
+     (require 'dired-x)
+   #+end_src
+
+   Ask to create a new directory when moving or coping a file to a
+   directory that doesn't exist yet
+   #+begin_src emacs-lisp
+     (defadvice dired-mark-read-file-name (after rv:dired-create-dir-when-needed (prompt dir op-symbol arg files &optional default) activate)
+       (when (member op-symbol '(copy move))
+         (let ((directory-name (if (< 1 (length files))
+                                   ad-return-value
+                                 (file-name-directory ad-return-value))))
+           (when (and (not (file-directory-p directory-name))
+                      (y-or-n-p (format "directory %s doesn't exist, create it?" directory-name)))
+             (make-directory directory-name t)))))
+   #+end_src
+   
+   Guess target directory also between dired frames, not only windows.
+   #+begin_src emacs-lisp
+     (defun dired-dwim-target-directory ()
+       ;; Try to guess which target directory the user may want.
+       ;; If there is a dired buffer displayed in one of the next windows,
+       ;; use its current subdir, else use current subdir of this dired buffer.
+       (let ((this-dir (and (eq major-mode 'dired-mode)
+                    (dired-current-directory))))
+         ;; non-dired buffer may want to profit from this function, e.g. vm-uudecode
+         (if dired-dwim-target
+         (let* ((other-win (get-window-with-predicate
+                            (lambda (window)
+                              (with-current-buffer (window-buffer window)
+                                (eq major-mode 'dired-mode)))
+                              nil
+                              'visible)) ; <========================
+                (other-dir (and other-win
+                                (with-current-buffer (window-buffer other-win)
+                                  (and (eq major-mode 'dired-mode)
+                                       (dired-current-directory))))))
+           (or other-dir this-dir))
+           this-dir)))
+   #+end_src
+
+   Cheatsheet
+   #+begin_src emacs-lisp
+     (cheatsheet-add-group '"Dired"
+                           '(:description "Open dired (helm-mode-dired)" :key "C-x d")
+                           '(:description "Open dired in other frame" :key "C-x 5 d")
+                           '(:description "Kill dired buffer" :key "q")
+                           '(:description "Refresh buffer" :key "g")
+                           '(:description "Undo" :key "C-_")
+                           '(:description "Up one directory" :key ",")
+                           '(:description "Move down" :key "n / SPC")
+                           '(:description "Move up" :key "p")
+                           '(:description "Move up and unflag / unmark" :key "DEL")
+                           '(:description "Mark file" :key "m")
+                           '(:description "Mark files by regexp" :key "* %")
+                           '(:description "Mark region" :key "* m")
+                           '(:description "Unmark region" :key "* u")
+                           '(:description "Mak files by extension" :key "* .")
+                           '(:description "Flag file for deletion" :key "d")
+                           '(:description "Remove deletion flag (unflag) / unmark" :key "u")
+                           '(:description "Unflag / unmark all" :key "U")
+                           '(:description "Toggle the mark" :key "t")
+                           '(:description "Change mark type (e.g. * to D changes marked file to flagged for deletion" :key "* c")
+                           '(:description "Delete files flagged for deletion" :key "x")
+                           '(:description "Open file" :key "f / RET")
+                           '(:description "Open file and kill dired buffer" :key "a")
+                           '(:description "Open file in other window" :key "o")
+                           '(:description "Visit file (read-only and close with q)" :key "v")
+                           '(:description "Copy marked file/s" :key "C")
+                           '(:description "Rename/move marked file/s" :key "R")
+                           '(:description "Complete the dired-do-rename buffer with the current filename" :key "M-n / C-w")
+                           '(:description "Delete marked file/s" :key "D")
+                           '(:description "Make symbolic link to this marked file/s" :key "S")
+                           '(:description "Chmod" :key "M")
+                           '(:description "Chgrp" :key "G")
+                           '(:description "Chown" :key "O")
+                           '(:description "Compress / uncompress (.gz)" :key "Z")
+                           '(:description "Compress to (can also do .zip)" :key "c")
+                           '(:description "Create directory" :key "+")
+                           '(:description "Create file" :key "C-x C-f")
+                           '(:description "Run shell command on file/s (e.g. open with another app)" :key "!")
+                           '(:description "Run shell command on file/s asyncr. (e.g. open with another app)" :key "&")
+                           '(:description "Show subdirectory content" :key "i")
+                           '(:description "Hide subdirectory content" :key ";")
+                           '(:description "Toggle sorting by name/date" :key "s")
+                           '(:description "Kill marked lines (delete the line in the buffer but not the file)" :key "k")
+                           '(:description "Show image thumb" :key "C-t d")
+                           '(:description "Open image dired" :key "M-x image-dired")
+                           '(:description "Copy file name/s in kill ring" :key "w")
+                           '(:description "Copy absolute file name/s in kill ring" :key "0 w")
+                           '(:description "Open file in browser" :key "W")
+                           '(:description "Enter wdired (allow editing the dired buffer) (finish with C-x C-s)" :key "C-x C-q")
+                           '(:description "Change what is displayed (ls arguments)" :key "C-u s")
+                           '(:description "Show/hide details" :key "(")
+                           '(:description "Show git info" :key ")")
+                           '(:description "Open filter menu" :key "C-c f")
+                           '(:description "Jump to corresponding dired from buffer" :key "C-x C-j")
+                           '(:description "Jump to corresponding dired in another window from buffer" :key "C-x 4 C-j")
+                           '(:description "Auto revert" :key "M-x auto-revert-mode")
+                           '(:description "Jump to prev/next directory" :key "< / >")
+                           '(:description "Jump to file" :key "j")
+                           '(:description "Visit all marked files" :key "F")
+                           '(:description "Search by regexp in marked files" :key "A")
+                           '(:description "Replace by regexp in markd files" :key "Q")
+                           '(:description "Call find and create dired buffer with output" :key "M-x find-dired")
+                           '(:description "Call find -name and create dired buffer with output" :key "M-x find-name-dired")
+                           '(:description "Call find and grep and create dired buffer with output" :key "M-x find-grep-dired"))
+   #+end_src
+** Keybindings
+   #+begin_src emacs-lisp
+     ;; Easier than C-x o
+     (global-set-key (kbd "M-o") 'other-window)
+
+     ;; Kill current buffer
+     (global-set-key (kbd "C-x K") 'kill-current-buffer)
+   #+end_src
+** Words movement
+   Treat snake_case as one word in Python
+   #+begin_src emacs-lisp
+     (add-hook 'python-mode-hook
+               (lambda()
+                 (superword-mode t)
+                 ))
+   #+end_src
+** Python
+    #+begin_src emacs-lisp
+      ;; Remove guess indent python message   
+      (setq python-indent-guess-indent-offset-verbose nil)
+    #+end_src
+** So-long
+   This library enables you to configure some simple thresholds to
+   check when visiting a file, beyond which a more performant mode
+   will be used in place of the normal mode, including disabling
+   certain buffer-local minor modes with performance implications, and
+   tuning buffer-local variables to maximise responsiveness.
+   #+begin_src emacs-lisp
+     ;; Avoid performance issues in files with very long lines.
+     (global-so-long-mode 1)
+   #+end_src
+** Ibuffer
+   Better buffer list than the standard one
+
+   #+begin_src emacs-lisp
+     (global-set-key (kbd "C-x C-b") 'ibuffer)
+     (setq ibuffer-saved-filter-groups
+           (quote (("default"
+                    ("dired" (mode . dired-mode))
+                    ("org" (mode . org-mode))
+
+                    ("web" (or (mode . web-mode) (mode . js2-mode)))
+                    ("shell" (or (mode . eshell-mode) (mode . shell-mode) (mode . vterm-mode)))
+                    ("programming" (or
+                                    (mode . python-mode)
+                                    (mode . emacs-lisp-mode)
+                                    (mode . c++-mode)))
+                    ("emacs" (or
+                              (name . "^\\*scratch\\*$")
+                              (name . "^\\*dashboard\\*$")
+                              (name . "^\\*Warnings\\*$")
+                              (name . "^\\*Messages\\*$")))
+                    ("helm" (mode . helm-major-mode))
+                    ))))
+     (add-hook 'ibuffer-mode-hook
+               (lambda ()
+                 (ibuffer-auto-mode 1)
+                 (ibuffer-switch-to-saved-filter-groups "default")))
+
+     ;; don't show these
+     ;(add-to-list 'ibuffer-never-show-predicates "zowie")
+     ;; Don't show filter groups if there are no buffers in that group
+     (setq ibuffer-show-empty-filter-groups nil)
+
+     ;; Don't ask for confirmation to delete marked buffers
+     (setq ibuffer-expert t)
+   #+end_src
+** Eldoc
+   #+begin_src emacs-lisp
+     (use-package eldoc
+       :delight
+     )
+   #+end_src
+** Completion at point
+   #+begin_src emacs-lisp
+     (use-package emacs
+       :init
+       ;; TAB cycle if there are only few candidates
+       (setq completion-cycle-threshold 3)
+
+       ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
+       ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
+       ;; (setq read-extended-command-predicate
+       ;;       #'command-completion-default-include-p)
+
+       ;; Enable indentation+completion using the TAB key.
+       ;; `completion-at-point' is often bound to M-TAB.
+       (setq tab-always-indent 'complete))
+   #+end_src
+** Show paren mode
+   #+begin_src emacs-lisp
+     (show-paren-mode 1)     
+     (setq show-paren-delay 0)
+   #+end_src
+** Async shell command
+   --#+begin_src emacs-lisp
+     (define-key global-map (kbd "M-à") 'marioba/async-shell-command)
+
+     (defun marioba/async-shell-command (COMMAND)
+       "TODO"
+       (interactive)
+       (async-shell-command COMMAND))
+   --#+end_src
+* Helper functions
+** Delete all buffers except the current one
+   When switching projects in Emacs, it can be prudent to clean up every once in
+   a while. Deleting all buffers except the current one is one of the things I
+   often do (especially in the long-running emacsclient).
+   #+begin_src emacs-lisp
+     (defun kill-other-buffers ()
+       "Kill all other buffers."
+       (interactive)
+       (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+   #+end_src
+** Delete all dired buffers
+   Dired will create buffers for every visited folder. This is a helper to clear
+   them out once you’re done working with those folders.
+   #+begin_src emacs-lisp
+     (defun kill-dired-buffers ()
+       "Kill all open dired buffers."
+       (interactive)
+       (mapc (lambda (buffer)
+               (when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
+                 (kill-buffer buffer)))
+             (buffer-list)))
+   #+end_src
+** Sudo save
+   If the current buffer is not writable, ask if it should be saved with sudo.
+   #+begin_src emacs-lisp
+     (defun ph/sudo-file-name (filename)
+       "Prepend '/sudo:root@`system-name`:' to FILENAME if appropriate.
+     This is, when it doesn't already have a sudo-prefix."
+       (if (not (or (string-prefix-p "/sudo:root@localhost:"
+                                     filename)
+                    (string-prefix-p (format "/sudo:root@%s:" system-name)
+                                     filename)))
+           (format "/sudo:root@%s:%s" system-name filename)
+         filename))
+
+     (defun ph/sudo-save-buffer ()
+       "Save FILENAME with sudo if the user approves."
+       (interactive)
+       (when buffer-file-name
+         (let ((file (ph/sudo-file-name buffer-file-name)))
+           (if (yes-or-no-p (format "Save file as %s ? " file))
+               (write-file file)))))
+
+     (advice-add 'save-buffer :around
+                 '(lambda (fn &rest args)
+                    (when (or (not (buffer-file-name))
+                              (not (buffer-modified-p))
+                              (file-writable-p (buffer-file-name))
+                              (not (ph/sudo-save-buffer)))
+                      (call-interactively fn args))))
+   #+end_src
+** Smerge-hydra
+   https://github.com/alphapapa/unpackaged.el#smerge-mode
+   This configuration automatically activates a helpful smerge-mode
+   hydra when a file containing merge conflicts is visited from a
+   Magit diff section. You can manually activate the hydra with the
+   command unpackaged/smerge-hydra/body
+   XX#+begin_src emacs-lisp
+     (use-package smerge-mode
+       :after hydra
+       :config
+       (defhydra unpackaged/smerge-hydra
+         (:color pink :hint nil :post (smerge-auto-leave))
+         "
+     ^Move^       ^Keep^               ^Diff^                 ^Other^
+     ^^-----------^^-------------------^^---------------------^^-------
+     _n_ext       _b_ase               _<_: upper/base        _C_ombine
+     _p_rev       _u_pper              _=_: upper/lower       _r_esolve
+     ^^           _l_ower              _>_: base/lower        _k_ill current
+     ^^           _a_ll                _R_efine
+     ^^           _RET_: current       _E_diff
+     "
+         ("n" smerge-next)
+         ("p" smerge-prev)
+         ("b" smerge-keep-base)
+         ("u" smerge-keep-upper)
+         ("l" smerge-keep-lower)
+         ("a" smerge-keep-all)
+         ("RET" smerge-keep-current)
+         ("\C-m" smerge-keep-current)
+         ("<" smerge-diff-base-upper)
+         ("=" smerge-diff-upper-lower)
+         (">" smerge-diff-base-lower)
+         ("R" smerge-refine)
+         ("E" smerge-ediff)
+         ("C" smerge-combine-with-next)
+         ("r" smerge-resolve)
+         ("k" smerge-kill-current)
+         ("ZZ" (lambda ()
+                 (interactive)
+                 (save-buffer)
+                 (bury-buffer))
+          "Save and bury buffer" :color blue)
+         ("q" nil "cancel" :color blue))
+       :hook (magit-diff-visit-file . (lambda ()
+                                        (when smerge-mode
+                                          (unpackaged/smerge-hydra/body)))))
+   #+end_src
+** Duplicate line
+   https://stackoverflow.com/a/4717026 It will duplicate the region if
+   it's active (transient mark mode), or default to duplicating the
+   line otherwise. It will also make multiple copies if given a prefix
+   arg, and comment out the original line if given a negative prefix
+   arg (this is useful for testing a different version of a
+   command/statement while keeping the old one).
+   #+begin_src emacs-lisp
+     (defun duplicate-line-or-region (&optional n)
+       "Duplicate current line, or region if active.
+      With argument N, make N copies.
+      With negative N, comment out original line and use the absolute value."
+       (interactive "*p")
+       (let ((use-region (use-region-p)))
+         (save-excursion
+           (let ((text (if use-region        ;Get region if active, otherwise line
+                           (buffer-substring (region-beginning) (region-end))
+                         (prog1 (thing-at-point 'line)
+                           (end-of-line)
+                           (if (< 0 (forward-line 1)) ;Go to beginning of next line, or make a new one
+                               (newline))))))
+             (dotimes (i (abs (or n 1)))     ;Insert N times, or once if not specified
+               (insert text))))
+         (if use-region nil                  ;Only if we're working with a line (not a region)
+           (let ((pos (- (point) (line-beginning-position)))) ;Save column
+             (if (> 0 n)                             ;Comment out original with negative arg
+                 (comment-region (line-beginning-position) (line-end-position)))
+             (forward-line 1)
+             (forward-char pos)))))
+     (global-set-key (kbd "C-c d") 'duplicate-line-or-region)
+   #+end_src
+** Changing font size
+   #+begin_src emacs-lisp
+     (defun zoom-in ()
+       (interactive)
+       (let ((x (+ (face-attribute 'default :height)
+                   10)))
+         (set-face-attribute 'default nil :height x)))
+
+     (defun zoom-out ()
+       (interactive)
+       (let ((x (- (face-attribute 'default :height)
+                   10)))
+         (set-face-attribute 'default nil :height x)))
+
+     (define-key global-map (kbd "C-1") 'zoom-in)
+     (define-key global-map (kbd "C-0") 'zoom-out)
+   #+end_src
+** Open a new eshell buffer
+   #+begin_src emacs-lisp
+     (defun marioba/eshell-new-name ()
+     "Call eshell with new buffer name i.e. *eshell*<2>"
+     (interactive)
+     (let ((current-prefix-arg '(4))) 
+       (call-interactively 'eshell)))
+   #+end_src
