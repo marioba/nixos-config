@@ -60,4 +60,7 @@
     recursive = true;
   };
 
+  # Git
+  programs.git.userName = "Mario Baranzini";
+  programs.git.userEmail = "mario@opengis.ch";
 }
