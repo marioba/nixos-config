@@ -20,7 +20,7 @@
   programs.home-manager.enable = true;
 
   nixpkgs.config.allowUnfree = true;
-  
+
   home.packages = with pkgs; [
     git
     emacs
@@ -43,10 +43,8 @@
     emacs-all-the-icons-fonts
     material-design-icons
     python310Packages.python-lsp-server
-    gnomeExtensions.pop-shell
-    gnome.dconf-editor  # Gnome key-based configuration system
-    gnomeExtensions.pop-launcher-super-key  # Binds pop launcher on Super key
-    (callPackage ./pkgs/pop-launcher {})
+    dmenu
+    rofi
   ];
 
   # Enable Emacs daemon
@@ -64,8 +62,30 @@
     recursive = true;
   };
 
+  imports = [
+    ./configs/i3.nix
+    ./configs/polybar.nix
+  ];
+
   # Git
   programs.git.enable = true;
   programs.git.userName = "Mario Baranzini";
   programs.git.userEmail = "mario@opengis.ch";
+
+  # Alacritty
+  programs.alacritty = {
+    enable = true;
+    settings = {
+      font = rec {
+        normal.family = "Fantasque Sans Mono";
+        bold = { style = "Bold"; };
+        size = 8;
+      };
+      offset = {
+        x = -1;
+        y = 0;
+      };
+    };
+  };
+
 }

@@ -53,8 +53,25 @@
     LC_TIME = "it_CH.utf8";
   };
 
-  # Configure keymap in X11
   services.xserver = {
+    enable = true;
+    desktopManager = {
+      xterm.enable = false;
+      xfce = {
+        enable = true;
+        noDesktop = true;
+        enableXfwm = false;
+      };
+    };
+    windowManager.i3 = {
+      enable = true;
+      package = pkgs.i3-gaps;
+      extraPackages = with pkgs; [
+        dmenu
+        i3lock
+      ];
+    };
+    displayManager.defaultSession = "xfce+i3";
     layout = "ch";
     xkbVariant = "fr";
   };
@@ -77,18 +94,10 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # Display Managers / Desktop Environments / Windows Managers
-  services.xserver.enable = true;
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
-
   # Fingerprint sensor
   services.fprintd.enable = true;
   security.pam.services.login.fprintAuth = true;
   security.pam.services.xscreensaver.fprintAuth = true;
-
-  # Battery life
-  # services.tlp.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -96,6 +105,7 @@
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     htop
+    killall
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -116,8 +126,6 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
-
-  
 
 
   # This value determines the NixOS release from which the default
