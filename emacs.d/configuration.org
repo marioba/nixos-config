@@ -423,7 +423,7 @@ This file contains my Emacs configuration. This file is loaded by
    of Magit and the rest of Emacs.
 
    Load Forge automatically when Magit is opened
-   #+begin_src emacs-lisp
+   #--+begin_src emacs-lisp
      (use-package forge
        :after (magit)
        :config
@@ -431,7 +431,7 @@ This file contains my Emacs configuration. This file is loaded by
        (with-eval-after-load 'magit
          (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-assigned-issues   nil t)
          (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-assigned-pullreqs   nil t)))
-   #+end_src
+   #--+end_src
 ** Diff-hl
    highlights uncommitted changes on the left side of the window (area
    also known as the "gutter"), allows you to jump between and revert
