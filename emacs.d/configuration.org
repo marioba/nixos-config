@@ -1406,6 +1406,13 @@ command outputs in separate buffers among other things.
                         :branch "master"
                         :files ("shelldon.el")))
 #+end_src
+** Nix mode
+An Emacs major mode for editing Nix expressions
+  #+begin_src emacs-lisp
+  (use-package nix-mode
+    :ensure t
+    :mode "\\.md\\'")
+  #+end_src
 * Built-it features and packages
   This section contains settings for built-in Emacs features.
 ** Executable path

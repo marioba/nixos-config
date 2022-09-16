@@ -65,6 +65,7 @@
   imports = [
     ./configs/i3.nix
     ./configs/polybar.nix
+    ./configs/zsh.nix
   ];
 
   # Git
