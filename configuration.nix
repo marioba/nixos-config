@@ -55,12 +55,12 @@
 
   services.xserver = {
     enable = true;
-    desktopManager = {
-      xterm.enable = false;
-      xfce = {
+    displayManager = {
+      #xterm.enable = false;
+      lightdm = {
         enable = true;
-        noDesktop = true;
-        enableXfwm = false;
+        #noDesktop = true;
+        #enableXfwm = false;
       };
     };
     windowManager.i3 = {
@@ -71,7 +71,7 @@
         i3lock
       ];
     };
-    displayManager.defaultSession = "xfce+i3";
+    displayManager.defaultSession = "none+i3";
     layout = "ch";
     xkbVariant = "fr";
   };
@@ -83,11 +83,25 @@
   services.xserver.xkbOptions = "ctrl:swapcaps";
   # console.useXkbConfig = true;
 
+  sound = {
+    enable = true;
+    mediaKeys.enable = true;
+  };
+  hardware = {
+    pulseaudio = {
+      enable = true;
+      package = pkgs.pulseaudioFull;
+      extraConfig = ''
+        load-module module-switch-on-connect
+      '';
+    };
+  };
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.mario = {
     isNormalUser = true;
     description = "Mario";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "video" "audio" "docker"];
     packages = with pkgs; [];
   };
 
@@ -108,6 +122,9 @@
     htop
     killall
   ];
+
+  # Docker
+  virtualisation.docker.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

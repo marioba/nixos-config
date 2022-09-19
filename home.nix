@@ -30,7 +30,6 @@
     python310Full
     qgis
     grass
-    docker
     docker-compose
     vlc
     dbeaver
@@ -39,12 +38,14 @@
     fantasque-sans-mono
     libvterm
     emacs28Packages.vterm
-    font-awesome_5
     emacs-all-the-icons-fonts
-    material-design-icons
     python310Packages.python-lsp-server
     dmenu
-    rofi
+    brightnessctl
+    nerdfonts
+    arandr
+    networkmanager_dmenu
+    pavucontrol
   ];
 
   # Enable Emacs daemon
@@ -68,6 +69,11 @@
     ./configs/zsh.nix
   ];
 
+  home.file.".config/networkmanager-dmenu" = {
+    source = ./configs/networkmanager-dmenu;
+    recursive = true;
+  };
+
   # Git
   programs.git.enable = true;
   programs.git.userName = "Mario Baranzini";
@@ -87,6 +93,28 @@
         y = 0;
       };
     };
+  };
+
+  # Rofi
+  programs.rofi = {
+    enable = true;
+    font = "FiraCode NF 12";
+    plugins = [
+      pkgs.rofi-emoji
+      pkgs.rofi-calc
+      pkgs.rofi-power-menu
+    ];
+    extraConfig = {
+      modi = "window,drun,ssh,p:${pkgs.rofi-power-menu}/bin/rofi-power-menu";
+      show-icons = true;
+      drun-display-format = "{icon} {name}";
+      # icon-theme = "${config.gtk.iconTheme.name}";
+      display-drun = "Apps";
+      display-power-menu = "Power Menu";
+      sort = true;
+      matching = "fuzzy";
+    };
+    # theme = "material";
   };
 
 }

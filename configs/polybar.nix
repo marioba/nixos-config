@@ -1,9 +1,15 @@
 { pkgs, ... }:
 
-# Created By @icanwalkonwater
-# Edited and ported to Nix by Th0rgal
-
 let
+  background = "#222";
+  background-alt = "#444";
+  foreground = "#dfdfdf";
+  foreground-alt = "#555";
+  primary = "#ffb52a";
+  secondary = "#e60053";
+  alert = "#bd2c40";
+  underline-blue = "#0a6cf5";
+
   ac = "#1E88E5";
   mf = "#383838";
 
@@ -11,10 +17,10 @@ let
   fg = "#FFFFFF";
 
   # Colored
-  primary = "#91ddff";
+  # primary = "#91ddff";
 
   # Dark
-  secondary = "#141228";
+  # secondary = "#141228";
 
   # Colored (light)
   tertiary = "#65b2ff";
@@ -33,8 +39,10 @@ in {
     enable = true;
 
     package = pkgs.polybar.override {
+      i3Support = true;
       i3GapsSupport = true;
       alsaSupport = true;
+      githubSupport = true;
     };
 
     script = "polybar -q -r top & polybar -q -r bottom &";
@@ -52,23 +60,38 @@ in {
         fixed-center = true;
 
         width = "100%";
-        height = 19;
+        height = 24;
         offset-x = "1%";
 
         scroll-up = "i3wm-wsnext";
         scroll-down = "i3wm-wsprev";
 
-        background = bg;
-        foreground = fg;
+        background = background;
+        foreground = foreground;
 
-        radius = 0;
+        line-size = 2;
+        line-color = "#f00";
+        radius = 4;
 
-        font-0 = "FuraCode Nerd Font:size=12;3";
-        font-1 = "FuraCode Nerd Font:style=Bold:size=12;3";
+        font-0 = "Fantasque Sans Mono:style=Regular:size=12;3";
+        font-1 = "Fantasque Sans Mono:style=Bold:size=12;3";
+        font-2 = "Font Awesome:style=Regular:size=10;3";
+        font-3 = "NotoSerif Nerd Font Mono:style=Light Italic:size=10;3";
 
-        modules-left = "distro-icon dulS ddrT i3 dulT";
-        modules-center = "title";
-        modules-right = "durT audio ddlT date";
+        modules-left = "i3";
+        modules-center = "date";
+        modules-right = "audio backlight battery";
+
+        # tray-position = "right";
+        # tray-detached = false;
+        # # tray-maxsize = 15;
+        # tray-background = background;
+        # tray-offset-x = -19;
+        # tray-offset-y = 0;
+        # tray-padding = 5;
+        # tray-scale = 1;
+
+        # padding = 2;
 
         locale = "en_US.UTF-8";
       };
@@ -82,46 +105,46 @@ in {
 
         offset-x = "1%";
 
-        background = bg;
-        foreground = fg;
+        background = background;
+        foreground = foreground;
 
-        radius-top = 0;
+        radius-top = 4;
 
         tray-position = "left";
         tray-detached = false;
         tray-maxsize = 15;
-        tray-background = primary;
+        tray-background = background;
         tray-offset-x = -19;
         tray-offset-y = 0;
         tray-padding = 5;
         tray-scale = 1;
         padding = 0;
 
-        font-0 = "FuraCode Nerd Font:size=12;3";
-        font-1 = "FuraCode Nerd Font:style=Bold:size=12;3";
+        font-0 = "Fantasque Sans Mono:style=Regular:size=12;3";
+        font-1 = "Fantasque Sans Mono:style=Bold:size=12;3";
+        font-2 = "Font Awesome:style=Regular:size=10;3";
+        font-3 = "NotoSerif Nerd Font Mono:style=Light Italic:size=10;3";
 
-        modules-left = "powermenu ddlS";
-
-        modules-right = "ddrS cpu dulS ddrT memory dulT ddrP battery";
+        modules-right = "filesystem memory cpu wlan eth temperature";
 
         locale = "en_US.UTF-8";
       };
 
-      "settings" = {
-        throttle-output = 5;
-        throttle-output-for = 10;
-        throttle-input-for = 30;
+      # "settings" = {
+      #   throttle-output = 5;
+      #   throttle-output-for = 10;
+      #   throttle-input-for = 30;
 
-        screenchange-reload = true;
+      #   screenchange-reload = true;
 
-        compositing-background = "source";
-        compositing-foreground = "over";
-        compositing-overline = "over";
-        comppositing-underline = "over";
-        compositing-border = "over";
+      #   compositing-background = "source";
+      #   compositing-foreground = "over";
+      #   compositing-overline = "over";
+      #   comppositing-underline = "over";
+      #   compositing-border = "over";
 
-        pseudo-transparency = "false";
-      };
+      #   pseudo-transparency = "false";
+      # };
 
       #--------------------MODULES--------------------"
 
@@ -139,44 +162,80 @@ in {
         label-font = 2;
       };
 
+      "module/filesystem" = {
+        type = "internal/fs";
+        interval = 25;
+        mount-0 = "/";
+
+        format-mounted = "<label-mounted>";
+        format-mounted-underline = underline-blue;
+        label-mounted = " %mountpoint%: %used%/%total%";
+        format-mounted-margin = 1;
+      };
+
+      "module/wlan" = {
+        type = "internal/network";
+        interface = "wlp2s0";
+        interval = 3;
+        label-connected = "%essid% %signal%%";
+      };
+
+      "module/backlight" = {
+        type = "internal/backlight";
+        card = "amdgpu_bl0";
+        label = " %percentage%%";
+        format = "<label>";
+        format-underline = underline-blue;
+        format-margin = 1;
+        enable-scroll = true;
+      };
+
       "module/audio" = {
         type = "internal/alsa";
-
-        format-volume = "墳 VOL <label-volume>";
-        format-volume-padding = 1;
-        format-volume-foreground = secondary;
-        format-volume-background = tertiary;
-        label-volume = "%percentage%%";
-
-        format-muted = "<label-muted>";
-        format-muted-padding = 1;
-        format-muted-foreground = secondary;
-        format-muted-background = tertiary;
-        format-muted-prefix = "婢 ";
-        format-muted-prefix-foreground = urgency;
-        format-muted-overline = bg;
-
-        label-muted = "VOL Muted";
+        format-volume = "<label-volume> <bar-volume>";
+        format-volume-margin = 1;
+        label-volume = "墳 %percentage%%";
+        label-volume-foreground = foreground;
+        label-muted = " muted";
+        label-muted-foreground = "#666";
+        bar-volume-width = 10;
+        bar-volume-foreground-0 = "#55aa55";
+        bar-volume-foreground-1 = "#55aa55";
+        bar-volume-foreground-2 = "#55aa55";
+        bar-volume-foreground-3 = "#55aa55";
+        bar-volume-foreground-4 = "#55aa55";
+        bar-volume-foreground-5 = "#f5a70a";
+        bar-volume-foreground-6 = "#ff5555";
+        bar-volume-gradient = false;
+        bar-volume-indicator = "|";
+        bar-volume-indicator-font = 2;
+        bar-volume-fill = "─";
+        bar-volume-fill-font = 2;
+        bar-volume-empty = "─";
+        bar-volume-empty-font = 2;
+        bar-volume-empty-foreground = foreground-alt;
       };
 
       "module/battery" = {
         type = "internal/battery";
         full-at = 101; # to disable it
-        battery = "BAT0"; # TODO: Better way to fill this
+        battery = "BAT0";
         adapter = "AC0";
 
         poll-interval = 2;
+        format-margin = 1;
 
         label-full = " 100%";
         format-full-padding = 1;
-        format-full-foreground = secondary;
-        format-full-background = primary;
+        format-full-foreground = foreground;
+        format-full-background = background;
 
         format-charging = " <animation-charging> <label-charging>";
-        format-charging-padding = 1;
-        format-charging-foreground = secondary;
-        format-charging-background = primary;
-        label-charging = "%percentage%% +%consumption%W";
+        format-charging-padding = 0;
+        format-charging-foreground = foreground;
+        format-charging-background = background;
+        format-charging-underline = underline-blue;
+        label-charging = "%percentage%%(+%consumption%W)";
         animation-charging-0 = "";
         animation-charging-1 = "";
         animation-charging-2 = "";
@@ -185,14 +244,15 @@ in {
         animation-charging-framerate = 500;
 
         format-discharging = "<ramp-capacity> <label-discharging>";
-        format-discharging-padding = 1;
-        format-discharging-foreground = secondary;
-        format-discharging-background = primary;
-        label-discharging = "%percentage%% -%consumption%W";
+        format-discharging-padding = 0;
+        format-discharging-foreground = foreground;
+        format-discharging-background = background;
+        format-discharging-underline = underline-blue;
+        label-discharging = "%percentage%%(-%consumption%W)";
         ramp-capacity-0 = "";
-        ramp-capacity-0-foreground = urgency;
+        ramp-capacity-0-foreground = alert;
         ramp-capacity-1 = "";
-        ramp-capacity-1-foreground = urgency;
+        ramp-capacity-1-foreground = alert;
         ramp-capacity-2 = "";
         ramp-capacity-3 = "";
         ramp-capacity-4 = "";
@@ -203,12 +263,13 @@ in {
 
         interval = "0.5";
 
-        format = " <label>";
-        format-foreground = quaternary;
-        format-background = secondary;
+        format = " <label>";
+        format-foreground = foreground;
+        format-background = background;
         format-padding = 1;
-
-        label = "CPU %percentage%%";
+        format-margin = 1;
+        format-underline = underline-blue;
+        label = "%percentage%%";
       };
 
       "module/date" = {
@@ -216,54 +277,58 @@ in {
 
         interval = "1.0";
 
-        time = "%H:%M:%S";
-        time-alt = "%Y-%m-%d%";
+        time = "%H:%M";
+        time-alt = "%H:%M:%S";
+        date = "%d-%m-%Y%";
+        date-alt = "%Y-%m-%d%";
 
         format = "<label>";
-        format-padding = 4;
-        format-foreground = fg;
+        format-padding = 0;
+        format-foreground = foreground;
+        format-underline = "#33cc33";
 
-        label = "%time%";
+        label = " %date%  %time%";
       };
 
       "module/i3" = {
         type = "internal/i3";
-        pin-workspaces = false;
-        strip-wsnumbers = true;
         format = "<label-state> <label-mode>";
-        format-background = tertiary;
+        index-sort = true;
+        wrapping-scroll = false;
 
-        ws-icon-0 = "1;";
-        ws-icon-1 = "2;";
-        ws-icon-2 = "3;﬏";
-        ws-icon-3 = "4;";
-        ws-icon-4 = "5;";
-        ws-icon-5 = "6;";
-        ws-icon-6 = "7;";
-        ws-icon-7 = "8;";
-        ws-icon-8 = "9;";
-        ws-icon-9 = "10;";
+        # Only show workspaces on the same output as the bar
+        pin-workspaces = true;
+        strip-wsnumbers = true;
 
-        label-mode = "%mode%";
-        label-mode-padding = 1;
+        label-mode-padding = 2;
+        label-mode-foreground = "#000";
+        label-mode-background = background;
 
-        label-unfocused = "%icon%";
-        label-unfocused-foreground = quinternary;
+        # focused = Active workspace on focused monitor
+        label-focused = "%index%: %name%";
+        #label-focused-font = 2;
+        label-focused-background = background-alt;
+        label-focused-underline = secondary;
+        #label-focused-foreground = foreground;
+        label-focused-padding = 2;
+
+        # unfocused = Inactive workspace on any monitor
+        label-unfocused = "%index%: %name%";
+        label-unfocused-foreground = foreground;
+        label-unfocused-background = background;
         label-unfocused-padding = 1;
 
-        label-focused = "%index% %icon%";
-        label-focused-font = 2;
-        label-focused-foreground = secondary;
-        label-focused-padding = 1;
-
-        label-visible = "%icon%";
+        # visible = Active workspace on unfocused monitor
+        label-visible = "%index%: %name%";
+        label-visible-underline = primary;
         label-visible-padding = 1;
 
-        label-urgent = "%index%";
+        # urgent = Workspace with urgency hint set
+        label-urgent = "%index%: %name%";
         label-urgent-foreground = urgency;
         label-urgent-padding = 1;
 
-        label-separator = "";
+        # label-separator = "";
       };
 
       "module/title" = {
@@ -280,11 +345,12 @@ in {
         interval = 3;
 
         format = " <label>";
-        format-background = tertiary;
-        format-foreground = secondary;
+        format-background = background;
+        format-foreground = foreground;
+        format-underline = underline-blue;
         format-padding = 1;
 
-        label = "RAM %percentage_used%%";
+        label = "%percentage_used%%";
       };
 
       "module/network" = {
@@ -319,27 +385,32 @@ in {
 
         interval = "0.5";
 
-        thermal-zone = 0; # TODO: Find a better way to fill that
+        thermal-zone = 0;
         warn-temperature = 60;
         units = true;
 
-        format = "<label>";
-        format-background = mf;
-        format-underline = bg;
-        format-overline = bg;
-        format-padding = 2;
+        format = "<ramp> <label>";
+        format-background = background;
+        format-underline = underline-blue;
+        format-padding = 0;
         format-margin = 0;
 
         format-warn = "<label-warn>";
-        format-warn-background = mf;
-        format-warn-underline = bg;
-        format-warn-overline = bg;
-        format-warn-padding = 2;
+        format-warn-background = background;
+        format-warn-underline = underline-blue;
+        format-warn-padding = 0;
         format-warn-margin = 0;
 
-        label = "TEMP %temperature-c%";
-        label-warn = "TEMP %temperature-c%";
+        label = "%temperature-c%";
+        label-warn = " %temperature-c%";
         label-warn-foreground = "#f00";
+
+        ramp-0 = "";
+        ramp-1 = "";
+        ramp-2 = "";
+        ramp-3 = "";
+        ramp-4 = "";
+
       };
 
       "module/powermenu" = {
@@ -347,7 +418,7 @@ in {
         expand-right = true;
 
         format = "<label-toggle> <menu>";
-        format-background = secondary;
+        format-background = background;
         format-padding = 1;
 
         label-open = "";
