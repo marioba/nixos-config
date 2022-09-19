@@ -115,16 +115,33 @@
   security.pam.services.login.fprintAuth = true;
   security.pam.services.xscreensaver.fprintAuth = true;
 
+  # SAMBA
+  services.samba.enable = true;
+  services.gvfs.enable = true;
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     wget
     htop
     killall
+    pkgs.cifs-utils
   ];
 
   # Docker
   virtualisation.docker.enable = true;
+
+  # Mount media network drive
+  # For mount.cifs, required unless domain name resolution is not needed.
+  fileSystems."/mnt/swisscom-mediabox" = {
+      device = "//192.168.1.220/media";
+      fsType = "cifs";
+      options = let
+        # this line prevents hanging on network split
+        automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
+
+      in ["${automount_opts},uid=1000,gid=100,rw,vers=1.0"]; #,credentials=/etc/nixos/smb-secrets"];
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -153,7 +170,6 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "22.05"; # Did you read the comment?
-
 
   # Flakes
   nix = {
