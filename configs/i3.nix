@@ -30,6 +30,7 @@
         "${modifier}+Shift+s" = "exec systemctl suspend";
         "${modifier}+Shift+l" = "exec i3lock";
         "${modifier}+n" = "open";
+        "F10" = "exec emacsclient -c";
       };
 
       startup = [
