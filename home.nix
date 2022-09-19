@@ -46,6 +46,9 @@
     arandr
     networkmanager_dmenu
     pavucontrol
+    gnome.nautilus
+    evince
+    qimgv
   ];
 
   # Enable Emacs daemon
@@ -116,5 +119,4 @@
     };
     # theme = "material";
   };
-
 }
