@@ -1,6 +1,13 @@
 { pkgs, lib, ... }:
 
+let
+  i3wsrConfig = pkgs.copyPathToStore ./i3wsr.toml;
+in
 {
+  home.packages = [
+    pkgs.i3wsr
+  ];
+
   xsession.windowManager.i3 = {
     enable = true;
     package = pkgs.i3-gaps;
@@ -35,7 +42,7 @@
 
       startup = [
         {
-          command = "exec i3-msg workspace 1";
+          command = "${pkgs.i3wsr}/bin/i3wsr --config ${i3wsrConfig}"; # exec i3-msg workspace 1";
           always = true;
           notification = false;
         }

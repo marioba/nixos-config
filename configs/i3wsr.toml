@@ -1,0 +1,20 @@
+[general]
+wm_property = "instance"
+separator = " | "
+default_icon = ""
+
+[aliases]
+qgis = "qgis"
+
+[icons]
+"chromium-browser" = ""
+emacs = ""
+ferdium = ""
+Alacritty = ""
+"Org.gnome.Nautilus" = ""
+libreoffice = ""
+evince = ""
+qgis = ""
+
+[options]
+no_icon_names = true
