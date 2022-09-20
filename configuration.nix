@@ -18,7 +18,7 @@
     enable = true;
     devices = ["nodev"];
     efiSupport = true;
-    gfxmodeEfi = "1680x1050";
+    gfxmodeEfi = "1920x1200";
     fontSize = 36;
   };
 
@@ -36,8 +36,6 @@
   time.timeZone = "Europe/Zurich";
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.utf8";
-
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "it_CH.utf8";
     LC_IDENTIFICATION = "it_CH.utf8";
@@ -48,6 +46,7 @@
     LC_PAPER = "it_CH.utf8";
     LC_TELEPHONE = "it_CH.utf8";
     LC_TIME = "it_CH.utf8";
+    LC_ALL = "en_US.utf8";
   };
 
   services.xserver = {
@@ -74,11 +73,16 @@
   };
 
   # Configure console keymap
-  console.keyMap = "fr_CH";
+  # console.keyMap = "fr_CH";
+
+  # Use the same configuration for console and xorg
+  console.useXkbConfig = true;
 
   # Remap Caps Lock to Ctrl
-  services.xserver.xkbOptions = "ctrl:swapcaps";
-  # console.useXkbConfig = true;
+  services.xserver.xkbOptions = "ctrl:nocaps";
+  # Switch Caps Lock and Ctrl
+  #services.xserver.xkbOptions = "ctrl:swapcaps";
+
 
   sound = {
     enable = true;
