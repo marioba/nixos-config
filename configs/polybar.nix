@@ -125,7 +125,7 @@ in {
         font-2 = "Font Awesome:style=Regular:size=10;3";
         font-3 = "NotoSerif Nerd Font Mono:style=Light Italic:size=10;3";
 
-        modules-right = "filesystem memory cpu wlan eth temperature";
+        modules-right = "filesystem memory cpu temperature wlan eth";
 
         locale = "en_US.UTF-8";
       };
@@ -177,7 +177,9 @@ in {
         type = "internal/network";
         interface = "wlp2s0";
         interval = 3;
-        label-connected = "%essid% %signal%%";
+        label-connected = " %essid% %signal%%";
+        format-connectd = "<label>";
+        format-connected-margin = 1;
       };
 
       "module/backlight" = {
@@ -223,18 +225,20 @@ in {
         adapter = "AC0";
 
         poll-interval = 2;
-        format-margin = 1;
 
         label-full = " 100%";
         format-full-padding = 1;
         format-full-foreground = foreground;
         format-full-background = background;
+        format-full-margin = 1;
 
         format-charging = " <animation-charging> <label-charging>";
         format-charging-padding = 0;
         format-charging-foreground = foreground;
         format-charging-background = background;
         format-charging-underline = underline-blue;
+        format-charging-margin = 1;
+
         label-charging = "%percentage%%(+%consumption%W)";
         animation-charging-0 = "";
         animation-charging-1 = "";
@@ -248,6 +252,8 @@ in {
         format-discharging-foreground = foreground;
         format-discharging-background = background;
         format-discharging-underline = underline-blue;
+        format-discharging-margin = 1;
+
         label-discharging = "%percentage%%(-%consumption%W)";
         ramp-capacity-0 = "";
         ramp-capacity-0-foreground = alert;
@@ -263,7 +269,7 @@ in {
 
         interval = "0.5";
 
-        format = " <label>";
+        format = "龍 <label>";
         format-foreground = foreground;
         format-background = background;
         format-padding = 1;
@@ -305,7 +311,7 @@ in {
         label-mode-background = background;
 
         # focused = Active workspace on focused monitor
-        label-focused = "%index%: %name%";
+        label-focused = "%name%";
         #label-focused-font = 2;
         label-focused-background = background-alt;
         label-focused-underline = secondary;
@@ -313,18 +319,18 @@ in {
         label-focused-padding = 2;
 
         # unfocused = Inactive workspace on any monitor
-        label-unfocused = "%index%: %name%";
+        label-unfocused = "%name%";
         label-unfocused-foreground = foreground;
         label-unfocused-background = background;
         label-unfocused-padding = 1;
 
         # visible = Active workspace on unfocused monitor
-        label-visible = "%index%: %name%";
+        label-visible = "%name%";
         label-visible-underline = primary;
         label-visible-padding = 1;
 
         # urgent = Workspace with urgency hint set
-        label-urgent = "%index%: %name%";
+        label-urgent = "%name%";
         label-urgent-foreground = urgency;
         label-urgent-padding = 1;
 
@@ -344,7 +350,7 @@ in {
 
         interval = 3;
 
-        format = " <label>";
+        format = " <label>";
         format-background = background;
         format-foreground = foreground;
         format-underline = underline-blue;
@@ -393,7 +399,7 @@ in {
         format-background = background;
         format-underline = underline-blue;
         format-padding = 0;
-        format-margin = 0;
+        format-margin = 1;
 
         format-warn = "<label-warn>";
         format-warn-background = background;

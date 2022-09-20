@@ -22,9 +22,6 @@
     fontSize = 36;
   };
 
-  # Kernel
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-
   networking.hostName = "vostok"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
