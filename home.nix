@@ -44,6 +44,7 @@
     brightnessctl
     nerdfonts
     arandr
+    autorandr
     networkmanager_dmenu
     pavucontrol
     gnome.nautilus
@@ -70,6 +71,8 @@
     ./configs/i3.nix
     ./configs/polybar.nix
     ./configs/zsh.nix
+    ./configs/rofi/rofi.nix
+    ./configs/autorandr.nix
   ];
 
   home.file.".config/networkmanager-dmenu" = {
@@ -98,25 +101,4 @@
     };
   };
 
-  # Rofi
-  programs.rofi = {
-    enable = true;
-    font = "FiraCode NF 12";
-    plugins = [
-      pkgs.rofi-emoji
-      pkgs.rofi-calc
-      pkgs.rofi-power-menu
-    ];
-    extraConfig = {
-      modi = "window,drun,ssh,p:${pkgs.rofi-power-menu}/bin/rofi-power-menu";
-      show-icons = true;
-      drun-display-format = "{icon} {name}";
-      # icon-theme = "${config.gtk.iconTheme.name}";
-      display-drun = "Apps";
-      display-power-menu = "Power Menu";
-      sort = true;
-      matching = "fuzzy";
-    };
-    # theme = "material";
-  };
 }

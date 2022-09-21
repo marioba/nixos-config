@@ -2,10 +2,13 @@
 
 let
   i3wsrConfig = pkgs.copyPathToStore ./i3wsr.toml;
+  powermenuScript = pkgs.copyPathToStore ./rofi/scripts/powermenu.sh;
+  autorandrScript = pkgs.copyPathToStore ./rofi/scripts/autorandr.sh;
 in
 {
   home.packages = [
     pkgs.i3wsr
+    pkgs.i3lock-fancy
   ];
 
   xsession.windowManager.i3 = {
@@ -30,12 +33,13 @@ in
         "XF86MonBrightnessDown" = "exec brightnessctl set 4%-";
         "XF86MonBrightnessUp" = "exec brightnessctl set 4%+";
         "${modifier}+Return" = "exec ${pkgs.alacritty}/bin/alacritty";
-        "${modifier}+d" = "exec ${pkgs.rofi}/bin/rofi -show drun window ssh p";
-        "${modifier}+Shift+d" = "exec ${pkgs.rofi}/bin/rofi -show window";
+        "${modifier}+d" = "exec ${pkgs.rofi}/bin/rofi -show drun";
+        "${modifier}+a" = "exec ${pkgs.rofi}/bin/rofi -show window";
+        "${modifier}+s" = "exec ${pkgs.rofi}/bin/rofi -show ssh";
+        "${modifier}+f" = "exec ${pkgs.rofi}/bin/rofi -show filebrowser";
+        "${modifier}+Shift+e" = "exec ${powermenuScript}";
+        "${modifier}+x" = "exec ${autorandrScript}";
         "${modifier}+o" = "move workspace to output left";
-        "${modifier}+b" = "exec ${pkgs.brave}/bin/brave";
-        "${modifier}+Shift+s" = "exec systemctl suspend";
-        "${modifier}+Shift+l" = "exec i3lock";
         "${modifier}+n" = "open";
         "F10" = "exec emacsclient -c";
       };

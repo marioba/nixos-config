@@ -45,7 +45,12 @@ in {
       githubSupport = true;
     };
 
-    script = "polybar -q -r top & polybar -q -r bottom &";
+    script = ''
+           for m in $(polybar --list-monitors | ${pkgs.coreutils}/bin/cut -d":" -f1); do
+             MONITOR=$m polybar -q -r top &
+           done
+           polybar -q -r bottom &
+    '';
 
     config = {
       "global/wm" = {
@@ -56,6 +61,8 @@ in {
       #====================BARS====================#
 
       "bar/top" = {
+        monitor = "\${env:MONITOR:}";
+
         bottom = false;
         fixed-center = true;
 
@@ -97,6 +104,8 @@ in {
       };
 
       "bar/bottom" = {
+        monitor = "eDP";
+
         bottom = true;
         fixed-center = true;
 

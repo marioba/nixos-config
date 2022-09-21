@@ -51,12 +51,10 @@
 
   services.xserver = {
     enable = true;
+    videoDrivers = [ "amdgpu" ];
     displayManager = {
-      #xterm.enable = false;
       lightdm = {
         enable = true;
-        #noDesktop = true;
-        #enableXfwm = false;
       };
     };
     windowManager.i3 = {
@@ -68,6 +66,10 @@
       ];
     };
     displayManager.defaultSession = "none+i3";
+    displayManager.sessionCommands = ''
+      # keep alacritty font size normal
+      export WINIT_X11_SCALE_FACTOR=1.66
+    '';
     layout = "ch";
     xkbVariant = "fr";
   };
