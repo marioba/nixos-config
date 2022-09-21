@@ -114,9 +114,9 @@
   nixpkgs.config.allowUnfree = true;
 
   # Fingerprint sensor
-  services.fprintd.enable = true;
-  security.pam.services.login.fprintAuth = true;
-  security.pam.services.xscreensaver.fprintAuth = true;
+  services.fprintd.enable = false;
+  # security.pam.services.login.fprintAuth = true;
+  # security.pam.services.xscreensaver.fprintAuth = true;
 
   # SAMBA
   services.samba.enable = true;
