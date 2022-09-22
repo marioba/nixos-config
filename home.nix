@@ -50,6 +50,8 @@
     gnome.nautilus
     evince
     qimgv
+    gnome.simple-scan
+    gimp
   ];
 
   # Enable Emacs daemon

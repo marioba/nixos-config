@@ -146,6 +146,24 @@
       in ["${automount_opts},uid=1000,gid=100,rw,vers=1.0"]; #,credentials=/etc/nixos/smb-secrets"];
   };
 
+  # Printing
+  services.printing = {
+    enable = true;
+    drivers = [ pkgs.brlaser ];
+    browsing = true;
+    browsedConf = ''
+    BrowseDNSSDSubTypes _cups,_print
+    BrowseLocalProtocols all
+    BrowseRemoteProtocols all
+    CreateIPPPrinterQueues All
+    BrowseProtocols all
+    '';
+  };
+  services.avahi.enable = true;
+  # Important to resolve .local domains of printers, otherwise you get an error
+  # like  "Impossible to connect to XXX.local: Name or service not known"
+  services.avahi.nssmdns = true;
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
