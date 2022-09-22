@@ -47,7 +47,8 @@
     autorandr
     networkmanager_dmenu
     pavucontrol
-    gnome.nautilus
+    krusader
+    libsForQt5.breeze-icons  # Used by krusader
     evince
     qimgv
     gnome.simple-scan
