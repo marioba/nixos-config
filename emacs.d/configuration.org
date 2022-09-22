@@ -415,7 +415,9 @@ This file contains my Emacs configuration. This file is loaded by
         (magit-todos-mode 1)
         ;; Don't scan lines longer than 120 otherwise can be a problem with
         ;; generated files with very long lines e.g. qwc2.js
-        (setq magit-todos-rg-extra-args '("-M 120")))
+        (setq magit-todos-rg-extra-args '("-M 120"))
+        (setq magit-todos-exclude-globs '("*.map" "*.js" "*.html"))
+        )
     #+END_SRC
 ** Magit-forge
    https://github.com/magit/forge
