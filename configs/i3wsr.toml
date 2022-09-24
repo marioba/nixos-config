@@ -15,6 +15,7 @@ Alacritty = ""
 libreoffice = ""
 evince = ""
 qgis = ""
+krusader = ""
 
 [options]
 no_icon_names = true
