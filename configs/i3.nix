@@ -20,6 +20,7 @@ in
       bars = [ ];
       gaps.smartGaps = true;
       window.border = 3;
+      focus.followMouse = false;
 
       gaps = {
         inner = 10;

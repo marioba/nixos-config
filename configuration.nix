@@ -128,7 +128,9 @@
     wget
     htop
     killall
-    pkgs.cifs-utils
+    pkgs.cifs-utils  # SMB client
+    rclone  # Backup tool
+    restic  # Backup tool
   ];
 
   # Docker
@@ -163,6 +165,37 @@
   # Important to resolve .local domains of printers, otherwise you get an error
   # like  "Impossible to connect to XXX.local: Name or service not known"
   services.avahi.nssmdns = true;
+
+  # Backups
+  services.restic.backups = {
+    swisscomMediabox = {
+      initialize = true;
+      passwordFile = "/home/mario/.secrets/restic-password";
+      paths = [
+        "/home/mario/safe"
+      ];
+      repository = "/mnt/swisscom-mediabox/backups/vostok";
+      timerConfig = {
+        OnCalendar = "08:00";  # Every day at 8:00
+        RandomizedDelaySec = "1h";  # Delay the timer by a randomly selected amount of time
+        Persistent = true;  # Catch up on missed runs of the service when the system was powered down
+      };
+
+    };
+    dropbox = {
+      initialize = true;
+      repository = "rclone:dropbox:/backups/vostok";  # Setup made with sudo rclone config
+      passwordFile = "/home/mario/.secrets/restic-password";
+      paths = [
+        "/home/mario/safe"
+      ];
+      timerConfig = {
+        OnCalendar = "08:00";  # Every day at 8:00
+        RandomizedDelaySec = "1h";  # Delay the timer by a randomly selected amount of time
+        Persistent = true;  # Catch up on missed runs of the service when the system was powered down
+      };
+    };
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
