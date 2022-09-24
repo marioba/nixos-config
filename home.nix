@@ -46,13 +46,15 @@
     arandr
     autorandr
     networkmanager_dmenu
-    pavucontrol
-    krusader
+    pavucontrol  # Audio controller
+    krusader  # File manager
     libsForQt5.breeze-icons  # Used by krusader
-    evince
-    qimgv
-    gnome.simple-scan
-    gimp
+    evince  # Document viewer
+    qimgv  # Image viewer
+    gnome.simple-scan  # Scanner
+    gimp  # Image editor
+    blender  # Video editor
+    deluge  # Torrent client
   ];
 
   # Enable Emacs daemon
