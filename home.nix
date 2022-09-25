@@ -55,6 +55,7 @@
     gimp  # Image editor
     blender  # Video editor
     deluge  # Torrent client
+    bat  # Cat clone with color highlighting and git integration
   ];
 
   # Enable Emacs daemon
@@ -106,4 +107,9 @@
     };
   };
 
+  # fzf
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+  };
 }

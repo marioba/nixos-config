@@ -131,6 +131,7 @@
     pkgs.cifs-utils  # SMB client
     rclone  # Backup tool
     restic  # Backup tool
+    ripgrep  # Faster grep
   ];
 
   # Docker

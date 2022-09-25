@@ -16,6 +16,7 @@ libreoffice = ""
 evince = ""
 qgis = ""
 krusader = ""
+Navigator = ""
 
 [options]
 no_icon_names = true
