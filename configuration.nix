@@ -174,6 +174,7 @@
       passwordFile = "/home/mario/.secrets/restic-password";
       paths = [
         "/home/mario/safe"
+        "/home/mario/projects"
       ];
       repository = "/mnt/swisscom-mediabox/backups/vostok";
       timerConfig = {
@@ -189,6 +190,7 @@
       passwordFile = "/home/mario/.secrets/restic-password";
       paths = [
         "/home/mario/safe"
+        "/home/mario/projects"
       ];
       timerConfig = {
         OnCalendar = "08:00";  # Every day at 8:00
