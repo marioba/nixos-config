@@ -1415,6 +1415,13 @@ An Emacs major mode for editing Nix expressions
     :ensure t
     :mode "\\.md\\'")
   #+end_src
+** Direnv mode
+This package provides direnv integration for emacs
+#+begin_src emacs-lisp
+  (use-package direnv
+    :config
+    (direnv-mode))
+#+end_src
 * Built-it features and packages
   This section contains settings for built-in Emacs features.
 ** Executable path

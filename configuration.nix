@@ -231,6 +231,11 @@
   # Flakes
   nix = {
     package = pkgs.nixFlakes;
-    extraOptions = "experimental-features = nix-command flakes";
+    extraOptions = ''
+      experimental-features = nix-command flakes
+      # Protect nix-shell against garbage collection
+      keep-outputs = true
+      keep-derivations = true
+    '';
   };
 }
