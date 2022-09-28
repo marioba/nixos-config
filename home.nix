@@ -87,9 +87,18 @@
   };
 
   # Git
-  programs.git.enable = true;
-  programs.git.userName = "Mario Baranzini";
-  programs.git.userEmail = "mario@opengis.ch";
+  programs.git = {
+    enable = true;
+    userName = "Mario Baranzini";
+    userEmail = "mario@opengis.ch";
+    extraConfig = {
+      url = {
+        "git@github.com:".insteadOf = "gh:";
+        "git@github.com:opengisch/".insteadOf = "og:";
+        "git@github.com:marioba/".insteadOf = "marioba:";
+      };
+    };
+  };
 
   # Alacritty
   programs.alacritty = {
