@@ -401,6 +401,8 @@ in {
         interval = "0.5";
 
         thermal-zone = 0;
+        hwmon-path = "/sys/devices/platform/thinkpad_hwmon/hwmon/hwmon2/temp1_input";
+
         warn-temperature = 60;
         units = true;
 
