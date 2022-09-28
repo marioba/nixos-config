@@ -28,7 +28,27 @@
     chromium
     libreoffice
     python310Full
-    qgis
+    (qgis.override {
+      extraPythonPackages = (ps: [
+        ps.dateutil
+        ps.future
+        ps.gdal
+        ps.httplib2
+        ps.jinja2
+        ps.lxml
+        ps.markupsafe
+        ps.matplotlib
+        ps.owslib
+        ps.plotly
+        ps.psycopg2
+        ps.pygments
+        ps.pyproj
+        ps.pyqt5
+        ps.requests
+        ps.sip
+        ps.six
+      ]);
+    })
     grass
     docker-compose
     vlc
