@@ -60,7 +60,6 @@
     ../modules/alacritty
     ../modules/fzf
     ../modules/nix-direnv
-    ../modules/emacs
     ../modules/qgis
   ];
 

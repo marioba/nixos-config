@@ -1,6 +1,11 @@
 { pkgs, lib, ... }:
 
 {
+  home.packages = with pkgs; [
+    emacs
+    emacs28Packages.vterm
+    emacs-all-the-icons-fonts
+  ];
 
   services.emacs = {
     # Enable Emacs daemon
@@ -13,10 +18,6 @@
     startWithUserSession = true;
   };
 
-  home.packages = with pkgs; [
-    emacs28Packages.vterm
-    emacs-all-the-icons-fonts
-  ];
 
   # Emacs configuration
   home.file.".emacs.d" = {
