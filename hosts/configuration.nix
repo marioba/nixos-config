@@ -7,7 +7,7 @@
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+      ./vostok/hardware-configuration.nix
     ];
 
   # Bootloader.
@@ -156,11 +156,11 @@
     drivers = [ pkgs.brlaser ];
     browsing = true;
     browsedConf = ''
-    BrowseDNSSDSubTypes _cups,_print
-    BrowseLocalProtocols all
-    BrowseRemoteProtocols all
-    CreateIPPPrinterQueues All
-    BrowseProtocols all
+      BrowseDNSSDSubTypes _cups,_print
+      BrowseLocalProtocols all
+      BrowseRemoteProtocols all
+      CreateIPPPrinterQueues All
+      BrowseProtocols all
     '';
   };
   services.avahi.enable = true;

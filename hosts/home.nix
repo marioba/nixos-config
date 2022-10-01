@@ -50,18 +50,18 @@
   ];
 
   imports = [
-    ./modules/i3
-    ./modules/polybar
-    ./modules/zsh
-    ./modules/rofi
-    ./modules/autorandr
-    ./modules/emacs
-    ./modules/git
-    ./modules/alacritty
-    ./modules/fzf
-    ./modules/nix-direnv
-    ./modules/emacs
-    ./modules/qgis
+    ../modules/i3
+    ../modules/polybar
+    ../modules/zsh
+    ../modules/rofi
+    ../modules/autorandr
+    ../modules/emacs
+    ../modules/git
+    ../modules/alacritty
+    ../modules/fzf
+    ../modules/nix-direnv
+    ../modules/emacs
+    ../modules/qgis
   ];
 
   programs.bash.enable = true;
