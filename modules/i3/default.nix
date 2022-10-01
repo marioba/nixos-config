@@ -2,8 +2,8 @@
 
 let
   i3wsrConfig = pkgs.copyPathToStore ./i3wsr.toml;
-  powermenuScript = pkgs.copyPathToStore ./rofi/scripts/powermenu.sh;
-  autorandrScript = pkgs.copyPathToStore ./rofi/scripts/autorandr.sh;
+  powermenuScript = pkgs.copyPathToStore ../rofi/scripts/powermenu.sh;
+  autorandrScript = pkgs.copyPathToStore ../rofi/scripts/autorandr.sh;
 in
 {
   home.packages = [
