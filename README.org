@@ -1,1 +1,38 @@
-My NixOS System Configuration
+* My NixOS System Configuration
+** Hosts
+*** tardis
+*** lem
+*** vostok
+Lenovo T14 AMD gen 3
+*** wm
+** Components
+| Shell      | Zsh       |
+| DM         | lightdm   |
+| WM         | i3        |
+| Bar        | Polybar   |
+| Launcher   | Rofi      |
+| Terminal   | Alacritty |
+| Editor     | Emacs     |
+| Bootloader | Grub      |
+** Installation
+Install git
+#+begin_src sh
+  nix-env -iA nixpkgs.git
+#+end_src
+
+Clone the repo
+#+begin_src sh
+  git clone https://github.com/marioba/nixos-config ~/projects/nixos-config
+  cd projects/nixos-config
+#+end_src
+
+Build and activate the flake
+#+begin_src sh
+  nix build --extra-experimental-features 'nix-command flakes' .#homeConfigurations.<host>.activationPackage
+  ./result/activate
+#+end_src
+
+** Rebuild
+#+begin_src sh
+  sudo nixos-rebuild switch --flake .#<host>
+#+end_src
