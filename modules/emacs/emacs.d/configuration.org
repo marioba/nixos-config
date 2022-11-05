@@ -559,12 +559,12 @@ Required by lsp-bridge
                 ("C-c l d" . lsp-bridge-lookup-documentation)
                 )
     :load-path "~/.emacs.d/straight/repos/lsp-bridge"
-    :config
-    (setq lsp-bridge-default-mode-hooks
-          (remove 'org-mode-hook lsp-bridge-default-mode-hooks))
-    ;;(add-to-list 'lsp-bridge-lang-server-mode-list '(python-mode . "pyright"))
+    ;; :config
+    ;; (setq lsp-bridge-default-mode-hooks
+    ;;       (remove 'org-mode-hook lsp-bridge-default-mode-hooks))
+    ;; (add-to-list 'lsp-bridge-lang-server-mode-list '(python-mode . "pyright"))
 
-    (setq lsp-bridge-enable-diagnostics nil)
+    ;; (setq lsp-bridge-enable-diagnostics nil)
     )
 
   (global-lsp-bridge-mode)
@@ -1421,6 +1421,14 @@ This package provides direnv integration for emacs
   (use-package direnv
     :config
     (direnv-mode))
+#+end_src
+** Org-reveal
+Org-Reveal exports your Org documents to reveal.js presentations.
+#+begin_src emacs-lisp
+    (use-package ox-reveal
+      :ensure ox-reveal)
+
+  (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
 #+end_src
 * Built-it features and packages
   This section contains settings for built-in Emacs features.

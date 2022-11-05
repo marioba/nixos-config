@@ -2,13 +2,15 @@
 
 let
   system = "x86_64-linux";
+
   pkgs = import nixpkgs {
     inherit system;
     config.allowUnfree = true;
   };
+
   lib = nixpkgs.lib;
 in {
-  vostok = lib.nixosSystem {
+  vostok = lib.nixosSystem {  # Vostok laptop profile
     inherit system;
     specialArgs = { inherit inputs user; };
     modules = [
@@ -24,4 +26,6 @@ in {
       nixos-hardware.nixosModules.lenovo-thinkpad-t14-amd-gen3
     ];
   };
+
+  # Add other profiles (e.g. wm, tardis, ...)
 }

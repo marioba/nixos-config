@@ -85,6 +85,11 @@
   # Switch Caps Lock and Ctrl
   #services.xserver.xkbOptions = "ctrl:swapcaps";
 
+  # Enable bluetooth
+  hardware.bluetooth.enable = true;
+
+  # Bluetooth pairing
+  services.blueman.enable = true;
 
   sound = {
     enable = true;
@@ -126,6 +131,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     wget
+    curl
     htop
     killall
     unzip
@@ -133,6 +139,7 @@
     rclone  # Backup tool
     restic  # Backup tool
     ripgrep  # Faster grep
+    xorg.xhost
   ];
 
   # Docker
@@ -149,6 +156,9 @@
 
       in ["${automount_opts},uid=1000,gid=100,rw,vers=1.0"]; #,credentials=/etc/nixos/smb-secrets"];
   };
+
+  # Auto mount usb drives
+  services.devmon.enable = true;
 
   # Printing
   services.printing = {
@@ -231,7 +241,6 @@
 
   # Flakes
   nix = {
-    #package = pkgs.nixFlakes;
     settings.experimental-features = [ "nix-command" "flakes" ];
     extraOptions = ''
       # Protect nix-shell against garbage collection
@@ -239,4 +248,11 @@
       keep-derivations = true
     '';
   };
+
+  # TODO: find a way to have this on the nix-shell only
+  networking.extraHosts =
+  ''
+    127.0.0.1 comptages-db
+  '';
+
 }

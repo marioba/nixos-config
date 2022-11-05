@@ -1,7 +1,5 @@
 { pkgs, lib, ... }:
 {
-
-  #environment.systemPackages = with pkgs; [
   home.packages = with pkgs; [
     (qgis.override {
       extraPythonPackages = (ps: [
@@ -25,7 +23,6 @@
       ]);
     })
     grass
-
+    libspatialite
   ];
-
 }
