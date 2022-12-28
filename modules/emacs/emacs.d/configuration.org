@@ -540,8 +540,8 @@ Required by lsp-bridge
      (use-package posframe
        )
    #+end_src
-** LSP-bridge
-#+begin_src emacs-lisp
+** LSP-bridge OLD
+--#+begin_src emacs-lisp
   (use-package lsp-bridge
       :straight (lsp-bridge :type git
                             :host github
@@ -593,7 +593,7 @@ Required by lsp-bridge
                         '(:description "display error at point" :key "C-c ! h")
                         '(:description "explain error at point" :key "C-c ! e")
                         )
-#+end_src
+--#+end_src
 ** Pipenv
    To activate a pipenv use =M-x pipenv-activate= and then restart the
    lsp workspace with =M-x lsp-workspace-restart=
@@ -1428,7 +1428,15 @@ Org-Reveal exports your Org documents to reveal.js presentations.
     (use-package ox-reveal
       :ensure ox-reveal)
 
-  (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
+#+end_src
+** Eglot
+#+begin_src emacs-lisp
+    (use-package eglot
+      :ensure t
+      :defer t
+      :hook (python-mode . eglot-ensure))
+
 #+end_src
 * Built-it features and packages
   This section contains settings for built-in Emacs features.
