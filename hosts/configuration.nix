@@ -264,4 +264,6 @@
     127.0.0.1 comptages-db
   '';
 
+  services.auto-cpufreq.enable = true;
+
 }
