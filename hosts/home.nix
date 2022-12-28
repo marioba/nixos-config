@@ -78,6 +78,8 @@
       patchelf
       nix-index
       imagemagick
+      zoom-us
+      teams
     ];
   };
 
