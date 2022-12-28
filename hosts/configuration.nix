@@ -109,7 +109,7 @@
   users.users.mario = {
     isNormalUser = true;
     description = "Mario";
-    extraGroups = [ "networkmanager" "wheel" "video" "audio" "docker"];
+    extraGroups = [ "networkmanager" "wheel" "video" "audio" "docker" "user-with-access-to-virtualbox"];
     packages = with pkgs; [];
   };
 
@@ -144,6 +144,15 @@
 
   # Docker
   virtualisation.docker.enable = true;
+
+  # VirtualBox
+  virtualisation.virtualbox = {
+    host.enable = true;
+    host.enableExtensionPack = true;
+    guest.enable = true;
+    guest.x11 = true;
+  };
+  users.extraGroups.vboxusers.members = [ "user-with-access-to-virtualbox" ];
 
   # Mount media network drive
   # For mount.cifs, required unless domain name resolution is not needed.
