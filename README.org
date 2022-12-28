@@ -36,3 +36,14 @@ Build and activate the flake
 #+begin_src sh
   sudo nixos-rebuild switch --flake .#<host>
 #+end_src
+
+** Update
+This will update the flake.lock file
+
+#+begin_src sh
+nix flake update
+#+end_src
+
+Now rebuild and switch
+
+
